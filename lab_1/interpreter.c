@@ -30,7 +30,7 @@ void interpreter(char **argument) {
 
     // shows current directory
     if (strcmp(argument[0], "pwd") == 0) {
-        char path_name[MAX_NUM];
+        char path_name[MAX_INPUT_SIZE];
         getcwd(path_name, sizeof(path_name));
         printf("    > %s\n", path_name);
         

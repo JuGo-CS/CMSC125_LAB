@@ -19,8 +19,4 @@ typedef struct {
     bool append;         
     bool background;     
 } Command;
-
-void interpreter(char **argument);
-
-
 #endif

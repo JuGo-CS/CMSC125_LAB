@@ -1,5 +1,6 @@
 #include "mysh.h"
 #include "parser.c"
+#include "interpreter.c"
 
 int main(){
     char input[MAX_INPUT_SIZE];
@@ -9,6 +10,8 @@ int main(){
     while (true) {
         // reset command struct
         command = (Command) {0};
+        
+        printf("mysh> ");
         get_input(input);
         get_tokens(token_arr, input);
         if (get_command(&command, token_arr) != 0) {
@@ -23,7 +26,6 @@ int main(){
         
         // possibly interpreter logic after this :>
         interpreter(command.args);
-
     }
 
     return 0;
