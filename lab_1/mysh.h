@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include <sys/wait.h>
 #define MAX_TOKEN_ARRAY_SIZE 256
 #define MAX_INPUT_SIZE 1024
 
@@ -18,6 +19,8 @@ typedef struct {
     bool append;         
     bool background;     
 } Command;
+
+void interpreter(char **argument);
 
 
 #endif

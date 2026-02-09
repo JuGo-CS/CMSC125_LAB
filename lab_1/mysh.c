@@ -9,9 +9,6 @@ int main(){
     while (true) {
         // reset command struct
         command = (Command) {0};
-        
-        // getting and parsing user input 
-        printf("mysh> ");
         get_input(input);
         get_tokens(token_arr, input);
         if (get_command(&command, token_arr) != 0) {
@@ -23,25 +20,10 @@ int main(){
             printf("Exiting mysh...");
             break;
         }
-
-        // outputs the content of the command struct
-        printf("command: %s\n", command.command);
         
-        printf("args: ");
-        int i = 0;
-        while (command.args[i] != NULL) {
-            printf("%s, ", command.args[i]);
-            i++;
-        }
-        printf("\n");
-
-        printf("input-file: %s\n", command.input_file);
-        printf("output-file: %s\n", command.output_file);
-        printf("append? : %d\n", command.append);
-        printf("background? : %d\n", command.background);  
-        printf("\n");  
-
         // possibly interpreter logic after this :>
+        interpreter(command.args);
+
     }
 
     return 0;
