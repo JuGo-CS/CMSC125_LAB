@@ -1,30 +1,22 @@
 #include "mysh.h"
-
-int get_input(char*);
+#include "parser.c"
 
 int main(){
     char input[MAX_INPUT_SIZE];
-
+    char* token_arr[MAX_TOKEN_ARRAY_SIZE + 1];  // MAX_TOKEN_ARRAY_SIZE plus the NULL at the end.
     while (true) {
         printf("mysh> ");
-        if (get_input(input) != 0) return 1;
-        printf("%s\n", input);
+        get_input(input);
+        get_tokens(token_arr, input);
+
+        int i = 0;
+        while (token_arr[i] != NULL) {
+            printf("%s ", token_arr[i]);
+            i++;
+        }
+        printf("\n");
+
     }
 
     return 0;
-}
-
-
-/**
- * gets user input from terminal.
- * @param input takes in a character array to store the input.
- * @return returns 0 if SUCCESS; returns 1 if an ERROR has occured.
- */
-int get_input(char* input) {
-    if (fgets(input, MAX_INPUT_SIZE, stdin) == NULL) { 
-        fprintf(stderr, "ERROR: Maximum input size (%d)) is reached.\n", MAX_INPUT_SIZE);
-        return 1;       
-    }
-    input[strcspn(input, "\n")] = '\0';     
-    return 0;    
 }

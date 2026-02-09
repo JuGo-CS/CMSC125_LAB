@@ -8,7 +8,7 @@
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -Wextra -std=c11
+CFLAGS = -Wall -Wextra
 
 # Target executable
 TARGET = mysh
