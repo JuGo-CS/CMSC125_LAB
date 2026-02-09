@@ -40,6 +40,8 @@ int main(){
         printf("append? : %d\n", command.append);
         printf("background? : %d\n", command.background);  
         printf("\n");  
+
+        // possibly interpreter logic after this :>
     }
 
     return 0;
