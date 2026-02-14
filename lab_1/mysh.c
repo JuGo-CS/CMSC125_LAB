@@ -40,10 +40,10 @@ int main(){
         }
 
         // command output for testing purposes
-        print_command(command);
+        // print_command(command);
 
         // intereter
-        interpreter(command->args);
+        interpreter(command);
     
         // free allocated memory
         free(input);
