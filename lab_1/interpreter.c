@@ -59,7 +59,7 @@ int interpreter(Command *command) {
 
         char path_name[MAX_INPUT_SIZE];
         if (getcwd(path_name, sizeof(path_name)) == NULL) {
-            perror("    > pwd failed!");
+            perror("    > Pwd Failed!");
             return 1;
         }
 
@@ -71,14 +71,43 @@ int interpreter(Command *command) {
     pid_t pid = fork();
 
     if (pid < 0) {
-        perror("    > fork failed!");
+        perror("    > Fork Failed!");
         return 1;
     }
 
     if (pid == 0) {
         //will pass the argument to the 'execvp'
+
+        if (command->input_file != NULL) {
+
+            int fd = open(command->input_file, O_RDONLY);
+            if (fd < 0) {
+                perror("    > Input Redirection Failed!");
+                exit(1);
+            }
+
+            dup2(fd, STDIN_FILENO);
+            close(fd);
+        }
+
+        if (command->output_file != NULL) {
+
+            int flags = O_WRONLY | O_CREAT;
+            flags |= cmd.append ? O_APPEND : O_TRUNC;
+
+            int fd = open(command->output_file, flags, 0644);
+
+            if (fd < 0) {
+                perror("    > Output Redirection Failed");
+                exit(1);
+            }
+
+            dup2(fd, STDOUT_FILENO);
+            close(fd);
+        }
+
         execvp(command->command, command->args);
-        perror("    > execvp failed!");
+        perror("    > Execvp Failed!");
         exit(127);
     } 
     
