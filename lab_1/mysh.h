@@ -6,8 +6,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
-
+#include <fcntl.h>
 #include <sys/wait.h>
+
 #define MAX_TOKEN_ARRAY_SIZE 256
 #define MAX_INPUT_SIZE 1024
 

@@ -1,5 +1,7 @@
 #include "mysh.h"
 
+static int job_counter = 0;
+
 int interpreter(Command *command) {
 
     //if there's no input, will return to the mysh.c to ask for the input
@@ -93,7 +95,11 @@ int interpreter(Command *command) {
         if (command->output_file != NULL) {
 
             int flags = O_WRONLY | O_CREAT;
-            flags |= cmd.append ? O_APPEND : O_TRUNC;
+
+            if (command->append)
+                flags |= O_APPEND;
+            else
+                flags |= O_TRUNC;
 
             int fd = open(command->output_file, flags, 0644);
 
@@ -110,13 +116,46 @@ int interpreter(Command *command) {
         perror("    > Execvp Failed!");
         exit(127);
     } 
-    
-    int status;
-    waitpid(pid, &status, 0);
 
-    if (WIFEXITED(status)) {
-        return WEXITSTATUS(status);
+    else {
+        if (!command->background) {
+            int status;
+            waitpid(pid, &status, 0);
+            if (WIFEXITED(status)) {
+                int exit_code = WEXITSTATUS(status);
+                if (exit_code != 0) {
+                    printf("    > Command exited with code: %d!\n", exit_code);
+                }
+            }
+        } 
+        
+        else {
+            job_counter++;
+
+            char full_command[1024] = "";
+            int i = 0;
+            while (command->args[i] != NULL) {
+                strcat(full_command, command->args[i]);
+                strcat(full_command, " ");
+                i++;
+            }
+
+            printf("    > [%d] Started background job: %s(PID: %d)\n", job_counter, full_command, pid);
+            
+        }
     }
+    
+    // if (command->background) {
+    //     printf("[Background] PID: %d\n", pid);
+    //     return 0;
+    // }
+
+    // int status;
+    // waitpid(pid, &status, 0);
+
+    // if (WIFEXITED(status)) {
+    //     return WEXITSTATUS(status);
+    // }
 
     return 0;
 }
