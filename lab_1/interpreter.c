@@ -11,12 +11,7 @@ int interpreter(Command *command) {
     // if there's no input, will return to the mysh.c to ask for the input
     if (command == NULL || command->command == NULL) {
         return 0;
-    }
-    
-    // if (strcmp(argument[0], "exit") == 0) {
-    //     printf("\nmysh> exiting mysh...\n\n");
-    //     exit(0);
-    // }
+    } 
 
     /*
        BUILT-IN: exit
@@ -27,21 +22,6 @@ int interpreter(Command *command) {
         printf("\nmysh> exiting shell...\n\n");
         exit(0);
     }
-
-    // 
-    // if(strcmp(argument[0], "cd") == 0){
-    //     //if there's no directory input, will raise issue
-    //     if(argument[1] == NULL){
-    //         printf("    > cd: Missing Input Argument!\n");
-    //     }
-    //     else {
-    //         //check if the directory input is valid or not
-    //         if (chdir(argument[1]) != 0) {
-    //             printf("    > cd: Invalid Directory!\n");
-    //         }
-    //     }
-    //     return;
-    // }
 
 
     /*
@@ -65,13 +45,6 @@ int interpreter(Command *command) {
         return 0;
     }
 
-    // if (strcmp(argument[0], "pwd") == 0) {
-    //     char path_name[MAX_INPUT_SIZE];
-    //     getcwd(path_name, sizeof(path_name));
-    //     printf("    > %s\n", path_name);
-        
-    //     return;
-    // }
 
 
     /*
@@ -231,17 +204,5 @@ int interpreter(Command *command) {
         }
     }
     
-    // if (command->background) {
-    //     printf("[Background] PID: %d\n", pid);
-    //     return 0;
-    // }
-
-    // int status;
-    // waitpid(pid, &status, 0);
-
-    // if (WIFEXITED(status)) {
-    //     return WEXITSTATUS(status);
-    // }
-
     return 0;
 }
