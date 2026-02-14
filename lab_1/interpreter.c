@@ -1,10 +1,14 @@
 #include "mysh.h"
 
+/*
+   This keeps track of how many background jobs we've started.
+   Crucial for printing how many background job already runs
+ */
 static int job_counter = 0;
 
 int interpreter(Command *command) {
 
-    //if there's no input, will return to the mysh.c to ask for the input
+    // if there's no input, will return to the mysh.c to ask for the input
     if (command == NULL || command->command == NULL) {
         return 0;
     }
@@ -14,6 +18,11 @@ int interpreter(Command *command) {
     //     exit(0);
     // }
 
+    /*
+       BUILT-IN: exit
+       If the user types "exit",
+       will result to end the whole shell.
+     */
     if (strcmp(command->command, "exit") == 0) {
         printf("\nmysh> exiting shell...\n\n");
         exit(0);
@@ -34,6 +43,14 @@ int interpreter(Command *command) {
     //     return;
     // }
 
+
+    /*
+        BUILT-IN: cd
+        CD navigate between folders (directories) within a file system
+
+        This is outside the forking part because
+        cd must be  handled by the parent process
+     */
     if (strcmp(command->command, "cd") == 0) {
 
         if (command->args[1] == NULL) {
@@ -48,7 +65,6 @@ int interpreter(Command *command) {
         return 0;
     }
 
-    // shows current directory
     // if (strcmp(argument[0], "pwd") == 0) {
     //     char path_name[MAX_INPUT_SIZE];
     //     getcwd(path_name, sizeof(path_name));
@@ -57,6 +73,14 @@ int interpreter(Command *command) {
     //     return;
     // }
 
+
+    /*
+       BUILT-IN: pwd
+     
+       This just prints where we currently are in the file system.
+       If the current directory is "mnt/cd/cmsc125", shell will 
+       just print this
+     */
     if (strcmp(command->command, "pwd") == 0) {
 
         char path_name[MAX_INPUT_SIZE];
@@ -69,17 +93,35 @@ int interpreter(Command *command) {
         return 0;
     }
 
-    //will fork the parent ~ to execute the given program
+    // will fork the parent
     pid_t pid = fork();
 
+
+    // if the forking failed, it will be catched by this if statement
     if (pid < 0) {
         perror("    > Fork Failed!");
         return 1;
     }
 
-    if (pid == 0) {
-        //will pass the argument to the 'execvp'
+    /*
+       CHILD PROCESS
+     
+       pid == 0 means we are now inside the child.
+       The child is responsible for:
+            - setting up i/o redirection
+            - executing the actual command
+     */
 
+    if (pid == 0) {
+
+        /*
+          INPUT REDIRECTION
+          
+          If user typed something like:
+            command < input.txt
+          
+          We open that file and connect it to STDIN.
+         */
         if (command->input_file != NULL) {
 
             int fd = open(command->input_file, O_RDONLY);
@@ -92,14 +134,23 @@ int interpreter(Command *command) {
             close(fd);
         }
 
+
+        /*
+           OUTPUT REDIRECTION
+         
+           Handles:
+             >  (overwrite)
+             >> (append)
+         
+         */
         if (command->output_file != NULL) {
 
             int flags = O_WRONLY | O_CREAT;
 
             if (command->append)
-                flags |= O_APPEND;
+                flags |= O_APPEND;  // >>
             else
-                flags |= O_TRUNC;
+                flags |= O_TRUNC;   // >
 
             int fd = open(command->output_file, flags, 0644);
 
@@ -111,13 +162,32 @@ int interpreter(Command *command) {
             dup2(fd, STDOUT_FILENO);
             close(fd);
         }
-
+        
+        /*
+           Now this part replaces the child process
+           with the actual program the user requested.
+        */
         execvp(command->command, command->args);
         perror("    > Execvp Failed!");
         exit(127);
     } 
 
+    /*
+       PARENT PROCESS
+     
+       This is still our shell.
+       The shell decides:
+         - Do we wait?
+         - Or do we run it in background?
+     */
     else {
+
+        /*
+           FOREGROUND PROCESS
+          
+           Normal commands.
+           The shell waits until the child finishes.
+         */
         if (!command->background) {
             int status;
             waitpid(pid, &status, 0);
@@ -128,12 +198,28 @@ int interpreter(Command *command) {
                 }
             }
         } 
-        
-        else {
-            job_counter++;
 
+
+        /*
+           BACKGROUND PROCESS
+          
+           If the user added "&" at the end,
+           the shell DO NOT wait.
+          
+           The shell stays responsive.
+           The child runs on its own.
+         */
+        else {
+            job_counter++;      // Increase background job number
+
+
+            /*
+               Rebuild the full command string
+               just so we can print it nicely.
+             */
             char full_command[1024] = "";
             int i = 0;
+
             while (command->args[i] != NULL) {
                 strcat(full_command, command->args[i]);
                 strcat(full_command, " ");
