@@ -88,26 +88,16 @@ char** get_tokens(char* input) {
  *  
  * @param command takes in the address of the Command struct and stores values there.   
  * @param tokens takes in an array of tokens.
- * @return returns 0 if SUCCESS; returns 1 if an ERROR has occured.
+ * @return returns a pointer to the Command struct if SUCCESS; returns NULL if an ERROR has occured.
  */
-int get_command(Command* command, char** tokens) {        
-    
-    /* These are special symbols for redirection and 
-        for declaring background processes */
-    char* INPUT_REDIRECTION_SYMBOL = "<";
-    char* OUTPUT_REDIRECTION_SYMBOL = ">";
-    char* APPEND_REDIRECTION_SYMBOL = ">>";
-    char* BACKGROUND_INDICATOR_SYMBOL = "&";
-    char* special_symbols[] = {
-        INPUT_REDIRECTION_SYMBOL, 
-        OUTPUT_REDIRECTION_SYMBOL, 
-        APPEND_REDIRECTION_SYMBOL, 
-        BACKGROUND_INDICATOR_SYMBOL
-    };
-    
+Command* get_command(char** tokens) {        
+    Command* command = calloc(1, sizeof(Command));
+    if (command == NULL) {
+        fprintf(stderr, "ERROR: Memory allocation failed for command struct.\n");
+        exit(1);
+    }
 
     int i = 0;
-    
     /* Handles finding all command arguments until we find NULL 
         or a special symbol (>, >>, <, or &). */
     while (tokens[i] != NULL && !contains_string(special_symbols, sizeof(special_symbols)/sizeof(char*), tokens[i])) {
@@ -137,14 +127,15 @@ int get_command(Command* command, char** tokens) {
 
         [3] Order of input and output redirection does not matter.
     */
+    bool error_flag = false;
     while (tokens[i] != NULL) {
         if (strcmp(tokens[i], INPUT_REDIRECTION_SYMBOL) == 0) {
             if (command->input_file != NULL) {
                 fprintf(stderr, "Error: Input redirection (<) has already been declared.\n");
-                return 1;
+                error_flag = true;
             } else if (tokens[i + 1] == NULL) {
                 fprintf(stderr, "Error: Input file for redirection is not found.\n");
-                return 1;
+                error_flag = true;
             } else {
                 command->input_file = tokens[i + 1];
                 i += 2;
@@ -152,10 +143,10 @@ int get_command(Command* command, char** tokens) {
         } else if (strcmp(tokens[i], OUTPUT_REDIRECTION_SYMBOL) == 0) {
             if (command->output_file != NULL) {
                 fprintf(stderr, "Error: Output/Append redirection (>, >>) has already been declared.\n");
-                return 1;
+                error_flag = true;
             } else if (tokens[i + 1] == NULL) {
                 fprintf(stderr, "Error: Output file for redirection is not found.\n");
-                return 1;
+                error_flag = true;
             } else {
                 command->output_file = tokens[i + 1];
                 i += 2;
@@ -163,10 +154,10 @@ int get_command(Command* command, char** tokens) {
         } else if (strcmp(tokens[i], APPEND_REDIRECTION_SYMBOL) == 0) {
             if (command->output_file != NULL) {
                 fprintf(stderr, "Error: Output/Append redirection (>, >>) has already been declared.\n");
-                return 1;
+                error_flag = true;
             } else if (tokens[i + 1] == NULL) {
                 fprintf(stderr, "Error: Append file for redirection is not found.\n");
-                return 1;
+                error_flag = true;
             } else {
                 command->output_file = tokens[i + 1];
                 command->append = true;
@@ -177,10 +168,15 @@ int get_command(Command* command, char** tokens) {
             i++;
         } else {
             fprintf(stderr, "Error: Other arguments found after redirections (<, >, >>) or background process symbol (&).\n");
-            return 1;
+            error_flag = true;
         }
+
+        if (error_flag) {
+            free(command);
+            return NULL;
+        } 
     }
 
-    return 0;
+    return command;        
 }
 

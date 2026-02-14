@@ -2,10 +2,25 @@
 #include "parser.c"
 #include "interpreter.c"
 
+void print_command(Command* command) {
+    printf("----- Command Struct -----\n");
+    printf("Command: %s\n", command->command);
+    printf("Arguments: ");
+    for (int i = 0; command->args[i] != NULL; i++) {
+        printf("%s ", command->args[i]);
+    }
+    printf("\n");
+    printf("Input File: %s\n", command->input_file);
+    printf("Output File: %s\n", command->output_file);
+    printf("Append: %s\n", command->append ? "true" : "false");
+    printf("Background: %s\n", command->background ? "true" : "false");
+    printf("--------------------------\n\n");
+}
+
 int main(){
     char* input;
     char** token_arr;
-    // Command* command;
+    Command* command;
 
     while (true) {        
         printf("mysh> ");
@@ -19,18 +34,21 @@ int main(){
             continue;
         }
    
+        command = get_command(token_arr);
+        if (command == NULL) {
+            continue;
+        }
 
-        // get_tokens(token_arr, input);
-        // if (get_command(&command, token_arr) != 0) {
-        //     continue;
-        // };
-                
-        // // possibly interpreter logic after this :>
-        // interpreter(command->args);
+        // command output for testing purposes
+        print_command(command);
+
+        // intereter
+        interpreter(command->args);
     
+        // free allocated memory
         free(input);
-        // free(token_arr);
-        // free(command);
+        free(token_arr);
+        free(command);
     }
 
     return 0;
