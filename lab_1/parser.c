@@ -18,16 +18,29 @@ bool contains_string(char* array[], int size, char* string) {
 
 /**
  * Gets user input from terminal.
- * @param input takes in a character array to store the input.
- * @return returns 0 if SUCCESS; returns 1 if an ERROR has occured.
+ * NOTE: 
+ *  [1] MAX_INPUT_SIZE + 2 is used for pointer size and fgets size as fgets reads 
+ *   MAX_INPUT_SIZE characters plus the newline character (\n) and the null terminator (\0).
+ * 
+ * @return returns a pointer to the input string if SUCCESS; returns NULL if an ERROR has occured.
  */
-int get_input(char* input) {
-    if (fgets(input, MAX_INPUT_SIZE, stdin) == NULL) { 
-        fprintf(stderr, "ERROR: Maximum input size (%d)) is reached.\n", MAX_INPUT_SIZE);
-        return 1;       
+char* get_input() {
+    char* input = malloc((MAX_INPUT_SIZE + 2) * sizeof(char));
+    if (input == NULL) {
+        fprintf(stderr, "ERROR: Memory allocation failed for input.\n");
+        exit(1);
     }
-    input[strcspn(input, "\n")] = '\0';     
-    return 0;    
+    
+    fgets(input, MAX_INPUT_SIZE + 2, stdin);
+    if (strchr(input, '\n') == NULL) { 
+        fprintf(stderr, "ERROR: Maximum input size (%d) is reached.\n", MAX_INPUT_SIZE);
+        while (getchar() != '\n');
+        free(input);
+        return NULL;       
+    } else {
+        input[strcspn(input, "\n")] = '\0';     
+        return input;    
+    }
 }
 
 /**

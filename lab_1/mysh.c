@@ -3,29 +3,29 @@
 #include "interpreter.c"
 
 int main(){
-    char input[MAX_INPUT_SIZE];
-    char* token_arr[MAX_TOKEN_ARRAY_SIZE + 1];  // MAX_TOKEN_ARRAY_SIZE plus the NULL at the end.
-    Command command;
+    char* input;
+    // char** token_arr;
+    // Command* command;
 
-    while (true) {
-        // reset command struct
-        command = (Command) {0};
-        
+    while (true) {        
         printf("mysh> ");
-        get_input(input);
-        get_tokens(token_arr, input);
-        if (get_command(&command, token_arr) != 0) {
+        input = get_input();
+        if (input == NULL) {
             continue;
-        };
-        
-        // exits if command is exit
-        if (strcmp(command.command, "exit") == 0) {
-            printf("Exiting mysh...");
-            break;
         }
-        
-        // possibly interpreter logic after this :>
-        interpreter(command.args);
+        printf("Input: %s\n", input);
+
+        // get_tokens(token_arr, input);
+        // if (get_command(&command, token_arr) != 0) {
+        //     continue;
+        // };
+                
+        // // possibly interpreter logic after this :>
+        // interpreter(command->args);
+    
+        free(input);
+        // free(token_arr);
+        // free(command);
     }
 
     return 0;
