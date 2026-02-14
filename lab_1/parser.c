@@ -20,7 +20,7 @@ bool contains_string(char* array[], int size, char* string) {
  * Gets user input from terminal.
  * NOTE: 
  *  [1] MAX_INPUT_SIZE + 2 is used for pointer size and fgets size as fgets reads 
- *   MAX_INPUT_SIZE characters plus the newline character (\n) and the null terminator (\0).
+ *   MAX_INPUT_SIZE characters plus the newline character (\n) and the NULL terminator (\0).
  * 
  * @return returns a pointer to the input string if SUCCESS; returns NULL if an ERROR has occured.
  */
@@ -45,28 +45,36 @@ char* get_input() {
 
 /**
  * Turns the input string to a list of tokens.
- * @param dest takes in an the address of the array of strings to store all the tokens there. 
+ * NOTE:
+ * [1] Tokens are separated by spaces or tabs.
+ * [2] MAX_TOKEN_ARRAY_SIZE + 1 is for the MAX_TOKEN_ARRAY_SIZE tokens and the NULL terminator (\0) at the end of the token array.
+ * 
  * @param input string input of user.
- * @return returns 0 if SUCCESS; returns 1 if an ERROR has occured.
+ * @return returns a pointer to the array of tokens if SUCCESS; returns NULL if an ERROR has occured.
  */
-int get_tokens(char** dest, char* input) {
+char** get_tokens(char* input) {
+    char** token_arr = malloc((MAX_TOKEN_ARRAY_SIZE + 1) * sizeof(char*));
+    if (token_arr == NULL) {
+        fprintf(stderr, "ERROR: Memory allocation failed for token array.\n");
+        exit(1);
+    }
+
     char* next_token;    
     char* token = strtok_r(input, " \t", &next_token);
-    
     int i = 0;
-    while (token && (i < MAX_TOKEN_ARRAY_SIZE - 1)) {
-        dest[i] = token;
+    while (token && (i < MAX_TOKEN_ARRAY_SIZE + 1)) {
+        token_arr[i] = token;
         token = strtok_r(NULL, " \t", &next_token);
         i++;
     }
-    if (i == MAX_TOKEN_ARRAY_SIZE) {
+    if (i == MAX_TOKEN_ARRAY_SIZE + 1) {
         fprintf(stderr, "Error: Maximum tokens (%d) reached.\n", MAX_TOKEN_ARRAY_SIZE);
-        return 1;
+        free(token_arr);
+        return NULL;
     } else {
-        dest[i] = NULL;
+        token_arr[i] = NULL;
+        return token_arr;
     }
-
-    return 0;
 }
 
 

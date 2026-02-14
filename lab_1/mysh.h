@@ -8,8 +8,8 @@
 #include <stdbool.h>
 
 #include <sys/wait.h>
-#define MAX_TOKEN_ARRAY_SIZE 256
-#define MAX_INPUT_SIZE 16
+#define MAX_TOKEN_ARRAY_SIZE 4
+#define MAX_INPUT_SIZE 1024
 
 typedef struct {
     char *command;       

@@ -4,7 +4,7 @@
 
 int main(){
     char* input;
-    // char** token_arr;
+    char** token_arr;
     // Command* command;
 
     while (true) {        
@@ -13,7 +13,12 @@ int main(){
         if (input == NULL) {
             continue;
         }
-        printf("Input: %s\n", input);
+
+        token_arr = get_tokens(input);  
+        if (token_arr == NULL) {
+            continue;
+        }
+   
 
         // get_tokens(token_arr, input);
         // if (get_command(&command, token_arr) != 0) {
