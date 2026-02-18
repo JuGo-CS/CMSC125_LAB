@@ -4,11 +4,29 @@
    This keeps track of how many background jobs we've started.
    Crucial for printing how many background job already runs
    Also for keeping track of the current running background jobs.
+   
  */
 
 static int total_bg_job = 0;
 static int active_bg_job = 0;
 static pid_t pids_bg_job[MAX_BG_JOBS];
+
+
+/*
+    cleanup_background_jobs()
+
+    This function checks all active background jobs to see
+    if they have finished execution.
+
+    It uses waitpid() with WNOHANG so that:
+        - It does NOT block the shell
+        - It only reaps processes that already finished
+
+    If a background job has finished:
+        - Print a completion message
+        - Remove its PID from the tracking array
+        - Shift remaining PIDs left
+*/
 
 void cleanup_background_jobs() {
 

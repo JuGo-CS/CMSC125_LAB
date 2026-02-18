@@ -9,7 +9,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
-#define MAX_BG_JOBS 2
+#define MAX_BG_JOBS 128
 #define MAX_TOKEN_ARRAY_SIZE 256
 #define MAX_INPUT_SIZE 1024
 
