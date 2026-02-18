@@ -18,6 +18,12 @@
 #define APPEND_REDIRECTION_SYMBOL ">>"
 #define BACKGROUND_INDICATOR_SYMBOL "&"
 
+#define NOT_BUILTIN 0
+#define A_BUILTIN  1
+#define SUCCESSFUL 0
+#define UNSUCCESSFUL 1
+
+
 
 
 

@@ -32,17 +32,19 @@ void cleanup_background_jobs() {
     }
 }
 
-int interpreter(Command *command) {
+int handles_builtin(Command *command, int *builtin_status) {
+    /*
+        Buuilt-in commands such as pwd, cd, and 
+        exit are located outside the forking part because
+        these commands must be  handled by the parent process.
+        No forking needed on these commands.
+    */
 
-    // if there's no input, will return to the mysh.c to ask for the input
-    if (command == NULL || command->command == NULL) {
-        return 0;
-    } 
 
     /*
-       BUILT-IN: exit
-       If the user types "exit",
-       will result to end the whole shell.
+        BUILT-IN: exit
+        If the user types "exit",
+        will result to end the whole shell.
      */
     if (strcmp(command->command, "exit") == 0) {
         printf("\nmysh> exiting shell...\n\n");
@@ -53,50 +55,66 @@ int interpreter(Command *command) {
     /*
         BUILT-IN: cd
         CD navigate between folders (directories) within a file system
-
-        This is outside the forking part because
-        cd must be  handled by the parent process
      */
     if (strcmp(command->command, "cd") == 0) {
 
         if (command->args[1] == NULL) {
             printf("    > cd: Missing Input Argument!\n");
+            *builtin_status = UNSUCCESSFUL;
         }
 
         else {
             if (chdir(command->args[1]) != 0) {
                 printf("    > cd: Invalid Directory!\n");
+                *builtin_status = UNSUCCESSFUL;
             }
 
             else {
                 printf("    > cd: Directory was changed successfully!\n");
-
-                return 0;
+                *builtin_status = SUCCESSFUL;
             }
         }
 
-        return 1;
+        return A_BUILTIN;
     }
 
 
 
     /*
-       BUILT-IN: pwd
+        BUILT-IN: pwd
      
-       This just prints where we currently are in the file system.
-       If the current directory is "mnt/cd/cmsc125", shell will 
-       just print this
+        This just prints where we currently are in the file system.
+        If the current directory is "mnt/cd/cmsc125", shell will 
+        just print this.
      */
     if (strcmp(command->command, "pwd") == 0) {
 
         char path_name[MAX_INPUT_SIZE];
         if (getcwd(path_name, sizeof(path_name)) == NULL) {
             perror("    > Pwd Failed!");
-            return 1;
+            *builtin_status = UNSUCCESSFUL;
+        } 
+        else {
+            printf("    > %s\n", path_name);
+            *builtin_status = SUCCESSFUL;
         }
 
-        printf("    > %s\n", path_name);
+        return A_BUILTIN;
+    }
+
+    return NOT_BUILTIN;
+}
+
+int interpreter(Command *command) {
+
+    // if there's no input, will return to the mysh.c to ask for the input
+    if (command == NULL || command->command == NULL) {
         return 0;
+    } 
+
+    int builtin_status = 0;
+    if (handles_builtin(command, &builtin_status)){
+        return builtin_status;
     }
 
     // will fork the parent
