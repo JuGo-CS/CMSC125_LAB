@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
+#define MAX_BG_JOBS 2
 #define MAX_TOKEN_ARRAY_SIZE 256
 #define MAX_INPUT_SIZE 1024
 
@@ -16,6 +17,9 @@
 #define OUTPUT_REDIRECTION_SYMBOL ">"
 #define APPEND_REDIRECTION_SYMBOL ">>"
 #define BACKGROUND_INDICATOR_SYMBOL "&"
+
+
+
 
 char* special_symbols[] = {
     INPUT_REDIRECTION_SYMBOL, 

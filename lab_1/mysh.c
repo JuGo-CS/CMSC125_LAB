@@ -22,7 +22,9 @@ int main(){
     char** token_arr;
     Command* command;
 
-    while (true) {        
+    while (true) {      
+        cleanup_background_jobs();
+          
         printf("mysh> ");
         input = get_input();
         if (input == NULL) {
