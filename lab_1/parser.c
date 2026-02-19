@@ -17,166 +17,129 @@ bool contains_string(char* array[], int size, char* string) {
 }
 
 /**
- * Gets user input from terminal.
- * NOTE: 
- *  [1] MAX_INPUT_SIZE + 2 is used for pointer size and fgets size as fgets reads 
- *   MAX_INPUT_SIZE characters plus the newline character (\n) and the NULL terminator (\0).
- * 
- * @return returns a pointer to the input string if SUCCESS; returns NULL if an ERROR has occured.
+ * frees all pointers found inside the struct
+ * @param cmd takes in a command struct address.
  */
-char* get_input() {
-    char* input = malloc((MAX_INPUT_SIZE + 2) * sizeof(char));
-    if (input == NULL) {
-        fprintf(stderr, "ERROR: Memory allocation failed for input.\n");
-        exit(1);
+
+void free_command(Command *cmd) {
+    if (!cmd) {
+        return;
     }
     
-    fgets(input, MAX_INPUT_SIZE + 2, stdin);
-    if (strchr(input, '\n') == NULL) { 
-        fprintf(stderr, "ERROR: Maximum input size (%d) is reached.\n", MAX_INPUT_SIZE);
-        while (getchar() != '\n');
-        free(input);
-        return NULL;       
-    } else {
-        input[strcspn(input, "\n")] = '\0';     
-        return input;    
+    for (int i = 0; cmd->args[i] != NULL; i++) {
+        free(cmd->args[i]);
+        cmd->args[i] = NULL;
     }
+    if (cmd->input_file) {
+        free(cmd->input_file);
+    }
+    if (cmd->output_file) {
+        free(cmd->output_file);
+    }
+    
+    cmd->input_file = NULL;
+    cmd->output_file = NULL;
+    cmd->command = NULL;
 }
 
 /**
- * Turns the input string to a list of tokens.
- * NOTE:
- * [1] Tokens are separated by spaces or tabs.
- * [2] MAX_TOKEN_ARRAY_SIZE + 1 is for the MAX_TOKEN_ARRAY_SIZE tokens and the NULL terminator (\0) at the end of the token array.
- * 
- * @param input string input of user.
- * @return returns a pointer to the array of tokens if SUCCESS; returns NULL if an ERROR has occured.
+ * gets user input and get a Command from it .
+ * @return returns a Command Struct on SUCCESS; returns 0 if if not.
  */
-char** get_tokens(char* input) {
-    char** token_arr = malloc((MAX_TOKEN_ARRAY_SIZE + 1) * sizeof(char*));
-    if (token_arr == NULL) {
-        fprintf(stderr, "ERROR: Memory allocation failed for token array.\n");
-        exit(1);
+
+Command get_command() {
+    char input[MAX_INPUT_SIZE + 2];
+    Command command = {0}; 
+
+    if (fgets(input, sizeof(input), stdin) == NULL) return command;
+
+    size_t len = strlen(input);
+    if (len > 0 && input[len - 1] != '\n') {
+        fprintf(stderr, "ERROR: Maximum input size (%d) reached.\n", MAX_INPUT_SIZE);
+        int ch;
+        while (((ch = getchar()) != '\n') && (ch != EOF)); 
+        return command;
+    } else if (len > 0) {
+        input[len - 1] = '\0';
     }
 
-    char* next_token;    
+
+    char* token_arr[MAX_TOKEN_ARRAY_SIZE + 1];
+    char* next_token;
     char* token = strtok_r(input, " \t", &next_token);
     int i = 0;
-    while (token && (i < MAX_TOKEN_ARRAY_SIZE + 1)) {
-        token_arr[i] = token;
+
+    while (token && (i < MAX_TOKEN_ARRAY_SIZE)) {
+        token_arr[i++] = token;
         token = strtok_r(NULL, " \t", &next_token);
-        i++;
     }
-    if (i == MAX_TOKEN_ARRAY_SIZE + 1) {
-        fprintf(stderr, "Error: Maximum tokens (%d) reached.\n", MAX_TOKEN_ARRAY_SIZE);
-        free(token_arr);
-        return NULL;
-    } else {
-        token_arr[i] = NULL;
-        return token_arr;
-    }
-}
+    token_arr[i] = NULL;
 
-
-/**
- * Sets the command struct to be executed given a list of tokens. 
- * 
- * Note: 
- *  All commands follow the following format for parsing with an example:
- *      command_name    command_args    redirect_operations(<, >, >>)   background_operation(&)
- *      ls              -la             > file.txt                      &
- *  
- * @param command takes in the address of the Command struct and stores values there.   
- * @param tokens takes in an array of tokens.
- * @return returns a pointer to the Command struct if SUCCESS; returns NULL if an ERROR has occured.
- */
-Command* get_command(char** tokens) {        
-    Command* command = calloc(1, sizeof(Command));
-    if (command == NULL) {
-        fprintf(stderr, "ERROR: Memory allocation failed for command struct.\n");
-        exit(1);
+    if (token != NULL) {
+        fprintf(stderr, "ERROR: Too many arguments (max %d).\n", MAX_TOKEN_ARRAY_SIZE);
+        return command;
     }
 
-    int i = 0;
-    /* Handles finding all command arguments until we find NULL 
-        or a special symbol (>, >>, <, or &). */
-    while (tokens[i] != NULL && !contains_string(special_symbols, sizeof(special_symbols)/sizeof(char*), tokens[i])) {
-        command->args[i] = tokens[i];
-        i++;
+
+    int j = 0;
+    while (token_arr[j] != NULL && !contains_string(special_symbols, 4, token_arr[j])) {
+        command.args[j] = strdup(token_arr[j]);
+        if (!command.args[j]) break; 
+        j++;
     }
-    command->command = command->args[0];
-    command->args[i] = NULL;
-    
+    command.args[j] = NULL;
+    command.command = command.args[0];
 
-    /* Handles redirection and background processes. 
-        Note:
-        [1] For redirection, there shall be only one input and 
-            output redirection (you cannot have two or more input and
-            output/append redirections.), or it will lead to an ERROR. 
-            
-        [2] Extra arguments or NULL found after redirections will lead to an ERROR.
-            Example of extra args in input: 
-                echo "hello" > output.txt EXTRA_ARGS
-
-            Redirection symbols (<, >, >>) must always be followed by only one file.
-        
-        [3] Background operation is optional, however, it must be the last thing in the 
-            user input. If not, then it will lead to an ERROR.
-            Example:
-                sleep 20 &
-
-        [3] Order of input and output redirection does not matter.
-    */
     bool error_flag = false;
-    while (tokens[i] != NULL) {
-        if (strcmp(tokens[i], INPUT_REDIRECTION_SYMBOL) == 0) {
-            if (command->input_file != NULL) {
+    while (token_arr[j] != NULL) {
+        if (strcmp(token_arr[j], INPUT_REDIRECTION_SYMBOL) == 0) {
+            if (command.input_file != NULL) {
                 fprintf(stderr, "Error: Input redirection (<) has already been declared.\n");
                 error_flag = true;
-            } else if (tokens[i + 1] == NULL) {
+            } else if (token_arr[j + 1] == NULL) {
                 fprintf(stderr, "Error: Input file for redirection is not found.\n");
                 error_flag = true;
             } else {
-                command->input_file = tokens[i + 1];
-                i += 2;
+                command.input_file = strdup(token_arr[j + 1]);
+                j += 2;
             }
-        } else if (strcmp(tokens[i], OUTPUT_REDIRECTION_SYMBOL) == 0) {
-            if (command->output_file != NULL) {
+
+        } else if (strcmp(token_arr[j], OUTPUT_REDIRECTION_SYMBOL) == 0) {
+            if (command.output_file != NULL) {
                 fprintf(stderr, "Error: Output/Append redirection (>, >>) has already been declared.\n");
                 error_flag = true;
-            } else if (tokens[i + 1] == NULL) {
+            } else if (token_arr[j + 1] == NULL) {
                 fprintf(stderr, "Error: Output file for redirection is not found.\n");
                 error_flag = true;
             } else {
-                command->output_file = tokens[i + 1];
-                i += 2;
+                command.output_file = strdup(token_arr[j + 1]);
+                j += 2;
             }
-        } else if (strcmp(tokens[i], APPEND_REDIRECTION_SYMBOL) == 0) {
-            if (command->output_file != NULL) {
+        } else if (strcmp(token_arr[j], APPEND_REDIRECTION_SYMBOL) == 0) {
+            if (command.output_file != NULL) {
                 fprintf(stderr, "Error: Output/Append redirection (>, >>) has already been declared.\n");
                 error_flag = true;
-            } else if (tokens[i + 1] == NULL) {
+            } else if (token_arr[j + 1] == NULL) {
                 fprintf(stderr, "Error: Append file for redirection is not found.\n");
                 error_flag = true;
             } else {
-                command->output_file = tokens[i + 1];
-                command->append = true;
-                i += 2;
+                command.output_file = strdup(token_arr[j + 1]);
+                command.append = true;
+                j += 2;
             }
-        } else if (strcmp(tokens[i], BACKGROUND_INDICATOR_SYMBOL) == 0) {
-            command->background = true;
-            i++;
+        } else if (strcmp(token_arr[j], BACKGROUND_INDICATOR_SYMBOL) == 0) {
+            command.background = true;
+            j++;
         } else {
             fprintf(stderr, "Error: Other arguments found after redirections (<, >, >>) or background process symbol (&).\n");
             error_flag = true;
         }
 
         if (error_flag) {
-            free(command);
-            return NULL;
-        } 
+            free_command(&command);
+            return (Command) {0};
+        }
     }
-
-    return command;        
+    return command;
 }
 
