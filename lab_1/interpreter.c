@@ -7,9 +7,10 @@
    
  */
 
-static int total_bg_job = 0;
-static int active_bg_job = 0;
-static pid_t pids_bg_job[MAX_BG_JOBS];
+int total_bg_job;
+int active_bg_job;
+pid_t pids_bg_job[MAX_BG_JOBS];
+
 
 
 /*
@@ -40,11 +41,13 @@ void cleanup_background_jobs() {
 
             printf("    > Background job (PID: %d) finished.\n", pids_bg_job[i]);
 
-            for (int j = i; j < active_bg_job - 1; j++) {
-                pids_bg_job[j] = pids_bg_job[j + 1];
-            }
+            // for (int j = i; j < active_bg_job - 1; j++) {
+            //     pids_bg_job[j] = pids_bg_job[j + 1];
+            // }
 
-            active_bg_job--;
+            pids_bg_job[i] = pids_bg_job[--active_bg_job];
+
+            // active_bg_job--;
             i--; 
         }
     }

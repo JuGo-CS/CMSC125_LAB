@@ -23,6 +23,10 @@
 #define SUCCESSFUL 0
 #define UNSUCCESSFUL 1
 
+extern int total_bg_job;
+extern int active_bg_job;
+extern pid_t pids_bg_job[MAX_BG_JOBS];
+
 
 
 
