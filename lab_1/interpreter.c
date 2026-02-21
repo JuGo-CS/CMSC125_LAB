@@ -10,6 +10,7 @@
 int total_bg_job;
 int active_bg_job;
 pid_t pids_bg_job[MAX_BG_JOBS];
+BackgroundJob bg_jobs[MAX_BG_JOBS];
 
 
 
@@ -41,11 +42,15 @@ void cleanup_background_jobs() {
 
             printf("    > Background job (PID: %d) finished.\n", pids_bg_job[i]);
 
+            free_command(bg_jobs[i].command);
+            free(bg_jobs[i].command);
+
             // for (int j = i; j < active_bg_job - 1; j++) {
             //     pids_bg_job[j] = pids_bg_job[j + 1];
             // }
 
             pids_bg_job[i] = pids_bg_job[--active_bg_job];
+            bg_jobs[i] = bg_jobs[active_bg_job];
 
             // active_bg_job--;
             i--; 
@@ -135,6 +140,7 @@ int interpreter(Command *command) {
 
     int builtin_status = 0;
     if (handles_builtin(command, &builtin_status)){
+        free_command(command);
         return builtin_status;
     }
 
@@ -145,6 +151,7 @@ int interpreter(Command *command) {
     // if the forking failed, it will be catched by this if statement
     if (pid < 0) {
         perror("    > Fork Failed!");
+        free_command(command);
         return 1;
     }
 
@@ -242,6 +249,8 @@ int interpreter(Command *command) {
                     printf("    > Command exited with code: %d!\n", exit_code);
                 }
             }
+
+            free_command(command);
         } 
 
 
@@ -259,29 +268,31 @@ int interpreter(Command *command) {
             if (active_bg_job < MAX_BG_JOBS) {
                 // total_bg_job++;      // Increase background job number
             
-            pids_bg_job[active_bg_job++] = pid;
-            total_bg_job++;
+                pids_bg_job[active_bg_job++] = pid;
+                total_bg_job++;
 
 
             /*
                Rebuild the full command string
                just so we can print it nicely.
              */
-            char full_command[1024] = "";
-            int i = 0;
+                char full_command[1024] = "";
+                int i = 0;
 
-            while (command->args[i] != NULL) {
-                strcat(full_command, command->args[i]);
-                strcat(full_command, " ");
-                i++;
-            }
+                while (command->args[i] != NULL) {
+                    strcat(full_command, command->args[i]);
+                    strcat(full_command, " ");
+                    i++;
+                }
 
-            printf("    > [%d] Started background job: %s(PID: %d)\n", total_bg_job, full_command, pid);
+                printf("    > [%d] Started background job: %s(PID: %d)\n", total_bg_job, full_command, pid);
 
+                free_command(command);
             }
 
             else {
                 printf("    > Too many background jobs at the moment!\n");
+                free_command(command);
             }
         }
     }
