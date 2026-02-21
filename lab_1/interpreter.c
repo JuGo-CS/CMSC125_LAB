@@ -156,10 +156,10 @@ int interpreter(Command *command) {
     }
 
     /*
-       CHILD PROCESS
+        CHILD PROCESS
      
-       pid == 0 means we are now inside the child.
-       The child is responsible for:
+        pid == 0 means we are now inside the child.
+        The child is responsible for:
             - setting up i/o redirection
             - executing the actual command
      */
@@ -167,12 +167,12 @@ int interpreter(Command *command) {
     if (pid == 0) {
 
         /*
-          INPUT REDIRECTION
+            INPUT REDIRECTION
           
-          If user typed something like:
-            command < input.txt
+            If user typed something like:
+                command < input.txt
           
-          We open that file and connect it to STDIN.
+            We open that file and connect it to STDIN.
          */
         if (command->input_file != NULL) {
 
@@ -188,11 +188,11 @@ int interpreter(Command *command) {
 
 
         /*
-           OUTPUT REDIRECTION
+            OUTPUT REDIRECTION
          
-           Handles:
-             >  (overwrite)
-             >> (append)
+            Handles:
+              >  (overwrite)
+              >> (append)
          
          */
         if (command->output_file != NULL) {
@@ -216,8 +216,8 @@ int interpreter(Command *command) {
         }
         
         /*
-           Now this part replaces the child process
-           with the actual program the user requested.
+            Now this part replaces the child process
+            with the actual program the user requested.
         */
         execvp(command->command, command->args);
         perror("    > Execvp Failed!");
@@ -225,20 +225,20 @@ int interpreter(Command *command) {
     } 
 
     /*
-       PARENT PROCESS
+        PARENT PROCESS
      
-       This is still our shell.
-       The shell decides:
-         - Do we wait?
-         - Or do we run it in background?
+        This is still our shell.
+        The shell decides:
+          - Do we wait?
+          - Or do we run it in background?
      */
     else {
 
         /*
-           FOREGROUND PROCESS
+            FOREGROUND PROCESS
           
-           Normal commands.
-           The shell waits until the child finishes.
+            Normal commands.
+            The shell waits until the child finishes.
          */
         if (!command->background) {
             int status;
@@ -255,22 +255,31 @@ int interpreter(Command *command) {
 
 
         /*
-           BACKGROUND PROCESS
+            BACKGROUND PROCESS
           
-           If the user added "&" at the end,
-           the shell DO NOT wait.
+            If the user added "&" at the end,
+            the shell DO NOT wait.
           
-           The shell stays responsive.
-           The child runs on its own.
+            The shell stays responsive.
+            The child runs on its own.
          */
         else {
 
             if (active_bg_job < MAX_BG_JOBS) {
                 // total_bg_job++;      // Increase background job number
-            
-                pids_bg_job[active_bg_job++] = pid;
-                total_bg_job++;
 
+                /*
+                  Allocate a new Command structure for the background job.
+                  his ensures the job keeps its own copy of all necessary data
+                  even after the original command is freed in the parent.
+                */
+                Command *cmd_copy = malloc(sizeof(Command));
+                if (!cmd_copy) {
+                    perror("malloc failed");
+                    free_command(command);
+                    return 1;
+                }
+                memset(cmd_copy, 0, sizeof(Command));
 
             /*
                Rebuild the full command string
@@ -282,8 +291,29 @@ int interpreter(Command *command) {
                 while (command->args[i] != NULL) {
                     strcat(full_command, command->args[i]);
                     strcat(full_command, " ");
+                    cmd_copy->args[i] = strdup(command->args[i]);
                     i++;
                 }
+
+                cmd_copy->args[i] = NULL;
+
+                if (command->input_file) {
+                    cmd_copy->input_file = strdup(command->input_file);
+                }
+
+                if (command->output_file) {
+                    cmd_copy->output_file = strdup(command->output_file);
+                }
+
+                cmd_copy->append = command->append;
+                cmd_copy->background = command->background;
+                cmd_copy->command = cmd_copy->args[0];
+
+                bg_jobs[active_bg_job].pid = pid;
+                bg_jobs[active_bg_job].command = cmd_copy;
+
+                pids_bg_job[active_bg_job++] = pid;
+                total_bg_job++;
 
                 printf("    > [%d] Started background job: %s(PID: %d)\n", total_bg_job, full_command, pid);
 
@@ -295,7 +325,7 @@ int interpreter(Command *command) {
                 free_command(command);
             }
         }
-    }
+    }a
     
     return 0;
 }
