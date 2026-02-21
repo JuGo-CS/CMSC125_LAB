@@ -13,7 +13,7 @@ int main(){
         }
         // interpreter(command); // make deep copies of commands sa sulod sang interpreter if istore siya sa bg jobs
     
-        free_command(&command);
+        // free_command(&command);
     }
 
     return 0;
