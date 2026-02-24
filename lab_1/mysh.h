@@ -44,8 +44,9 @@ typedef struct {
     Command *command;   // store full command for background jobs
 } BackgroundJob;
 
-extern int total_bg_job;
-extern int active_bg_job;
-extern pid_t pids_bg_job[MAX_BG_JOBS];
+// extern int total_bg_job;
+extern int bg_job_counter;
+// extern pid_t pids_bg_job[MAX_BG_JOBS];
+
 
 #endif

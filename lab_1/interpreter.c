@@ -7,9 +7,9 @@
    
  */
 
-int total_bg_job;
-int active_bg_job;
-pid_t pids_bg_job[MAX_BG_JOBS];
+// int total_bg_job;
+int total_bg_job_counter;
+// pid_t pids_bg_job[MAX_BG_JOBS];
 BackgroundJob bg_jobs[MAX_BG_JOBS];
 
 
@@ -34,28 +34,22 @@ void cleanup_background_jobs() {
 
     int status;
 
-    for (int i = 0; i < active_bg_job; i++) {
+    for (int i = 0; i < total_bg_job_counter; i++) {
 
-        pid_t result = waitpid(pids_bg_job[i], &status, WNOHANG);
+        pid_t pid_result = waitpid(bg_jobs[i].pid, &status, WNOHANG);
 
-        if (result > 0) {
+        if (pid_result > 0) {
 
-            printf("    > Background job (PID: %d) finished.\n", pids_bg_job[i]);
+            printf("    > Background job (PID: %d) finished.\n", bg_jobs[i].pid);
 
-            free_command(bg_jobs[i].command);
+            free_command(bg_jobs[i].command); 
             free(bg_jobs[i].command);
+            bg_jobs[i] = bg_jobs[--total_bg_job_counter];
 
-            // for (int j = i; j < active_bg_job - 1; j++) {
-            //     pids_bg_job[j] = pids_bg_job[j + 1];
-            // }
-
-            pids_bg_job[i] = pids_bg_job[--active_bg_job];
-            bg_jobs[i] = bg_jobs[active_bg_job];
-
-            // active_bg_job--;
-            i--; 
+            break;
         }
     }
+    
 }
 
 int handles_builtin(Command *command, int *builtin_status) {
@@ -265,7 +259,7 @@ int interpreter(Command *command) {
          */
         else {
 
-            if (active_bg_job < MAX_BG_JOBS) {
+            if (total_bg_job_counter < MAX_BG_JOBS) {
                 // total_bg_job++;      // Increase background job number
 
                 /*
@@ -309,13 +303,13 @@ int interpreter(Command *command) {
                 cmd_copy->background = command->background;
                 cmd_copy->command = cmd_copy->args[0];
 
-                bg_jobs[active_bg_job].pid = pid;
-                bg_jobs[active_bg_job].command = cmd_copy;
+                bg_jobs[total_bg_job_counter].pid = pid;
+                bg_jobs[total_bg_job_counter].command = cmd_copy;
+                total_bg_job_counter++;
+                // pids_bg_job[total_bg_job_counter++] = pid;
+                // total_bg_job++;
 
-                pids_bg_job[active_bg_job++] = pid;
-                total_bg_job++;
-
-                printf("    > [%d] Started background job: %s(PID: %d)\n", total_bg_job, full_command, pid);
+                printf("    > [%d] Started background job: %s(PID: %d)\n", total_bg_job_counter, full_command, pid);
 
                 free_command(command);
             }
@@ -325,7 +319,7 @@ int interpreter(Command *command) {
                 free_command(command);
             }
         }
-    }a
+    }
     
     return 0;
 }
