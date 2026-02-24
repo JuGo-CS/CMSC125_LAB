@@ -1,5 +1,4 @@
-# MYSH - Custom Shell Implementation 
-# CMSC 125 Laboratory Exercise: Unix Shell
+# MYSH - CMSC 125 Laboratory Exercise: Unix Shell
 
 ## Overview
 

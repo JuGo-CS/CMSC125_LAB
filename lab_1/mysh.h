@@ -23,10 +23,6 @@
 #define SUCCESSFUL 0
 #define UNSUCCESSFUL 1
 
-
-
-
-
 char* special_symbols[] = {
     INPUT_REDIRECTION_SYMBOL, 
     OUTPUT_REDIRECTION_SYMBOL, 
@@ -42,4 +38,15 @@ typedef struct {
     bool append;         
     bool background;     
 } Command;
+
+typedef struct {
+    pid_t pid;
+    Command *command;   // store full command for background jobs
+} BackgroundJob;
+
+// extern int total_bg_job;
+extern int bg_job_counter;
+// extern pid_t pids_bg_job[MAX_BG_JOBS];
+
+
 #endif
