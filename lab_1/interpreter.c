@@ -27,7 +27,7 @@ BackgroundJob bg_jobs[MAX_BG_JOBS];
     If a background job has finished:
         - Print a completion message
         - Remove its PID from the tracking array
-        - Shift remaining PIDs left
+        - Replace it with the last background job 
 */
 
 void cleanup_background_jobs() {
@@ -45,8 +45,7 @@ void cleanup_background_jobs() {
             free_command(bg_jobs[i].command); 
             free(bg_jobs[i].command);
             bg_jobs[i] = bg_jobs[--total_bg_job_counter];
-
-            break;
+            i--;
         }
     }
     
@@ -269,7 +268,7 @@ int interpreter(Command *command) {
                 */
                 Command *cmd_copy = malloc(sizeof(Command));
                 if (!cmd_copy) {
-                    perror("malloc failed");
+                    perror("    > Malloc failed!");
                     free_command(command);
                     return 1;
                 }
