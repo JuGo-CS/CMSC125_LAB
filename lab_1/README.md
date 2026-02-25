@@ -61,10 +61,9 @@ lab_1/
 
 #### **parser.c** - Input Processing
 **Key Functions:**
-- `get_input()`: Reads user input from stdin with error handling
-- `get_tokens()`: Tokenizes input by spaces and tabs
-- `get_command()`: Parses tokens into a Command struct with validation
+- `get_command()`: gets input string and parses into a Command struct 
 - `contains_string()`: Utility to detect special symbols
+- `free_command()`: utility to remove all heap-allocated pointers in the command. 
 
 **Parsing Logic:**
 ```
