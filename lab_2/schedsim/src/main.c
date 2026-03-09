@@ -13,14 +13,16 @@ int main(int argc, char *argv[]) {
     int opt;
     char *algorithm = NULL;
     char *process_str = NULL;
-
+    char *input_file = NULL;
+    
     static struct option long_options[] = {
         {"algorithm", required_argument, 0, 'a'},
         {"processes", required_argument, 0, 'p'},
+        {"input", required_argument, 0, 'i'},
         {0, 0, 0, 0}
     };
 
-    while ((opt = getopt_long(argc, argv, "a:p:", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "a:p:i", long_options, NULL)) != -1) {
         switch (opt) {
             case 'a':
                 algorithm = optarg;
@@ -28,8 +30,11 @@ int main(int argc, char *argv[]) {
             case 'p':
                 process_str = optarg;
                 break;
+            case 'i':
+                input_file = optarg;
+                break;
             default:
-                fprintf(stderr, "Usage: %s --algorithm=TYPE --processes=\"...\"\n", argv[0]);
+                fprintf(stderr, "Invalid option: %s\n", argv[optind - 1]);
                 exit(1);
         }
     }    
@@ -44,24 +49,26 @@ int main(int argc, char *argv[]) {
             state.processes[state.num_processes++] = p;
             token = strtok(NULL, ";");  
         }
-        for(int i = 0; i < state.num_processes; i++) {
-            printf("Loaded Process: PID=%s, Arrival=%d, Burst=%d, Remaining=%d, Start=%d, Finish=%d, Waiting=%d, Priority=%d, QueueTime=%d\n", 
-                state.processes[i].pid, 
-                state.processes[i].arrival_time, 
-                state.processes[i].burst_time, 
-                state.processes[i].remaining_time,
-                state.processes[i].start_time,
-                state.processes[i].finish_time,
-                state.processes[i].waiting_time,
-                state.processes[i].priority,
-                state.processes[i].time_in_queue
-            );
+    } else if (input_file) {
+        FILE *fptr = fopen(input_file, "r");
+        if (!fptr) {
+            fprintf(stderr, "Error opening file: %s\n", input_file);
+            exit(1);
         }
-        printf("Scheduling algorithm: %s\n", algorithm);
-    } else {
-        fprintf(stderr, "No processes provided. Use --processes=\"pid,arrival,burst;...\"\n");
-        exit(1);    
+        
+        char line[256];
+        while (fgets(line, sizeof(line), fptr)) {
+            line[strcspn(line, "\n")] = 0; 
+            Process p = {0};          
+            sscanf(line, "%15[^ ] %d %d", p.pid, &p.arrival_time, &p.burst_time);
+            p.remaining_time = p.burst_time; 
+            state.processes[state.num_processes++] = p;
+        }
+    
+        fclose(fptr);
     }
+
+    printf("Scheduling algorithm: %s\n", algorithm);
     return 0;
 }
 
