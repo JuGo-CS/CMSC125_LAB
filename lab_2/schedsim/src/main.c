@@ -101,9 +101,9 @@ int main(int argc, char *argv[]) {
             schedule_sjf(&state);
         }
 
-        // else if(strcasecmp(algorithm, "stcf") == 0) {
-            
-        // }
+        else if(strcasecmp(algorithm, "stcf") == 0) {
+            schedule_stcf(&state);
+        }
 
         // else if(strcasecmp(algorithm, "mlfq") == 0) {
             
