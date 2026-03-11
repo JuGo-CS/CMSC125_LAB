@@ -30,8 +30,8 @@ void print_metrics(SchedulerState *state) {
     int total_tt = 0, total_wt = 0, total_rt = 0;
     printf("\n\n=== Metrics ===\n");
     // Use %-7s to left-align the string in a 7-character space
-    printf("%-8s|  AT  |  BT  |  FT  |  TT  |  WT  |  RT  \n", "Process");
-    printf("--------|------|------|------|------|------|------\n");
+    printf("%-8s|  AT  |  BT  |  FT  |   TT   |   WT   |   RT   \n", "Process");
+    printf("--------|------|------|------|--------|--------|--------\n");
 
     for (int i = 0; i < state->num_processes; i++) {
         Process *p = &state->processes[i];
@@ -45,14 +45,14 @@ void print_metrics(SchedulerState *state) {
         total_wt += wt;
         total_rt += rt;
 
-        printf("%-8s| %4d | %4d | %4d | %4d | %4d | %4d\n", 
+        printf("%-8s| %4d | %4d | %4d | %6d | %6d | %6d\n", 
                p->pid, p->arrival_time, p->burst_time, 
                p->finish_time, tt, wt, rt);
     }
-    printf("--------|------|------|------|------|------|-----\n");
-    printf("%-8s|      |      |      | %4.0d | %4.0d | %4.0d\n", 
+    printf("--------|------|------|------|--------|--------|-------\n");
+    printf("%-8s|      |      |      | %6.2f | %6.2f | %6.2f\n", 
         "Average", 
-        total_tt / state->num_processes, 
-        total_wt / state->num_processes, 
-        total_rt / state->num_processes);
+        (float)total_tt / state->num_processes, 
+        (float)total_wt / state->num_processes, 
+        (float)total_rt / state->num_processes);
 }

@@ -97,9 +97,9 @@ int main(int argc, char *argv[]) {
             schedule_rr(&state, quantum_time);
         }
 
-        // else if(strcasecmp(algorithm, "sjf") == 0) {
-
-        // }
+        else if(strcasecmp(algorithm, "sjf") == 0) {
+            schedule_sjf(&state);
+        }
 
         // else if(strcasecmp(algorithm, "stcf") == 0) {
             
