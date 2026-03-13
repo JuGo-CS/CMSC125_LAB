@@ -14,50 +14,78 @@
 //     }
 // }
 
+void enqueueing_process(Process_queued *processes, int *processes_unqueued, Queue *queue, int index) {
+
+    Process_queued holder = processes[index];
+    
+    processes[index] = processes[*processes_unqueued - 1];
+    *processes_unqueued -= 1;
+    
+    enqueue(queue, holder.processes);
+}
+
+void check_arrivals(SchedulerState *state, Process_queued *processes, int *processes_unqueued, Queue *queue) {
+    for (int i = 0; i < *processes_unqueued; i++) {
+        if (processes[i].processes->arrival_time <= state->current_time) {
+            enqueueing_process(processes, processes_unqueued, queue, i);
+            i--; 
+        }
+    }
+}
+
 int schedule_rr(SchedulerState *state, int quantum_time){
     Queue queue = {0};
     Process_queued processes[state->num_processes];
+
+    Process *current_process = NULL;
+    int current_quantum_left = 0;
+
     int complete_counter = 0;
     int processes_unqueued = state->num_processes;
+    
 
     initialize_process_for_queue(state, processes);
+
     while(complete_counter < state->num_processes){
 
-        for(int i = 0; i < processes_unqueued; i++){
-            if(processes[i].processes->arrival_time <= state->current_time){
-                printf("At time stamp: %d, Procees PID enqueue: %s\n\n",state->current_time, processes[i].processes->pid);
-                Process_queued holder = processes[i];
-                processes[i--] = processes[--processes_unqueued];
+        check_arrivals(state, processes, &processes_unqueued, &queue);
 
-                enqueue(&queue, holder.processes);
+        if(current_process == NULL){
+
+            if(queue.size == 0){
+                state->current_time++;
+                continue;
+            }
+
+            current_process = dequeue(&queue);
+            current_quantum_left = quantum_time;
+
+            if(current_process->start_time == -1){
+                current_process->start_time = state->current_time;
             }
         }
 
-        if(queue.size == 0){
-            state->current_time++;
-            continue;
-        }
+        state->current_time++;
+        current_process->remaining_time--;
+        current_quantum_left--;
 
-        Process *p = dequeue(&queue);
-        if(p->start_time == -1){
-            p->start_time = state->current_time;
-        }
+        check_arrivals(state, processes, &processes_unqueued, &queue);
 
-        if(p->remaining_time <= quantum_time){
-            state->current_time += p->remaining_time;
-            p->finish_time = state->current_time;
-            p->remaining_time = 0;
-
+        if(current_process->remaining_time == 0){
+            current_process->finish_time = state->current_time;
             complete_counter++;
-        } else {
-            state->current_time += quantum_time;
-            p->remaining_time -= quantum_time;
 
-            enqueue(&queue, p);
+            current_process = NULL;
+        } 
+        
+        else if(current_quantum_left == 0){
+            enqueue(&queue, current_process);
+            current_process = NULL;
         }
 
     }
 
+    return 0;
 
 }
 
