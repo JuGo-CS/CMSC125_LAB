@@ -80,6 +80,7 @@ int main(int argc, char *argv[]) {
             Process p = {0};          
             sscanf(line, "%15[^ ] %d %d", p.pid, &p.arrival_time, &p.burst_time);
             p.remaining_time = p.burst_time; 
+            p.start_time = -1;
             state.processes[state.num_processes++] = p;
         }
     

@@ -17,12 +17,13 @@ typedef struct{
 
 typedef struct{
     Process *processes;
-    bool is_queued;
+    // bool is_queued;
 } Process_queued;
 
 int queue_size(Queue *queue);
 void enqueue(Queue *queue, Process *new_process);
 Process* dequeue(Queue *queue);
+void initialize_process_for_queue(SchedulerState *state, Process_queued *processes);
 
 #endif
 
