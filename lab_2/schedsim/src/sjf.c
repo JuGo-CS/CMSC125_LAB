@@ -1,43 +1,49 @@
 #include "./../include/process.h"
 #include "./../include/scheduler.h"
 #include "./../include/minheap.h"
+#include "./../include/minheap_utils.h"
+#include "./../include/utils.h"
 #include <stdio.h>
 
 int schedule_sjf(SchedulerState *state){
 
     MinHeap heap = {0};
-    int completed_process = 0;
-    int next_process = 0;
+    Processes_pointer processes[state->num_processes];
+    Process *current_process = NULL;
 
-    state->current_time = 0;
+    int completed_process = 0;
+    int processes_not_inserted = state->num_processes;
+
+    initialize_processes_pointer(state, processes);
 
     while(completed_process < state->num_processes){
 
-        while(next_process < state->num_processes &&
-              state->processes[next_process].arrival_time <= state->current_time){
+        check_arrivals_heap(state, processes, &processes_not_inserted, &heap);
 
-            heap_insert(&heap, state, next_process++);
+        if(current_process == NULL){
+            if(heap.size == 0){
+                state->current_time++;
+                continue;
+            }
+
+            int min_index = heap_extract_min(&heap, state);
+            current_process = &state->processes[min_index];
+
+            if(current_process->start_time == -1){
+                current_process->start_time = state->current_time;
+            }
         }
 
-        if(heap.size == 0){
-            state->current_time++;
-            continue;
+        current_process->remaining_time--;
+        state->current_time++;
+
+        if (current_process->remaining_time == 0) {
+            current_process->finish_time = state->current_time;
+            current_process = NULL;
+            completed_process++;
         }
-
-        int min_index = heap_extract_min(&heap, state);
-        Process *p = &state->processes[min_index];
-
-        if(p->start_time == -1){
-            p->start_time = state->current_time;
-        }
-
-        state->current_time += p->burst_time;
-
-        p->finish_time = state->current_time;
-        p->remaining_time = 0;
-
-        completed_process++;
     }
 
     return 0;
 }
+

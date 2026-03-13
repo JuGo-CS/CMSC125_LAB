@@ -17,4 +17,9 @@ typedef struct {
     // int last_update;       // For calculating waiting_time
 } Process;
 
+typedef struct{
+    Process *processes;
+    // bool is_queued;
+} Processes_pointer;
+
 #endif

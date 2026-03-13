@@ -43,10 +43,3 @@ Process* dequeue(Queue *queue){
     return p;
 }
 
-void initialize_process_for_queue(SchedulerState *state, Process_queued *processes){
-    for(int i = 0; i < state->num_processes; i++){
-        processes[i].processes = &state->processes[i];
-        // processes[i].is_queued = false;
-    }
-}
-

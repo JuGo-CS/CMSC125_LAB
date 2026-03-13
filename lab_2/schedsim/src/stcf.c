@@ -1,23 +1,23 @@
 #include "./../include/process.h"
 #include "./../include/scheduler.h"
 #include "./../include/minheap.h"
+#include "./../include/minheap_utils.h"
+#include "./../include/utils.h"
 #include <stdio.h>
 
 int schedule_stcf(SchedulerState *state){
 
     MinHeap heap = {0};
-    int completed = 0;
-    int next_process = 0;
+    Processes_pointer processes[state->num_processes];
 
-    state->current_time = 0;
+    int completed = 0;
+    int processes_not_inserted = state->num_processes;
+
+    initialize_processes_pointer(state, processes);
 
     while(completed < state->num_processes){
 
-        while(next_process < state->num_processes &&
-              state->processes[next_process].arrival_time <= state->current_time){
-
-            heap_insert(&heap, state, next_process++);
-        }
+        check_arrivals_heap(state, processes, &processes_not_inserted, &heap);
 
         if(heap.size == 0){
             state->current_time++;
@@ -35,6 +35,8 @@ int schedule_stcf(SchedulerState *state){
         p->remaining_time--;
         state->current_time++;
 
+        check_arrivals_heap(state, processes, &processes_not_inserted, &heap);
+
         if(p->remaining_time == 0){
             p->finish_time = state->current_time;
             completed++;
@@ -46,4 +48,5 @@ int schedule_stcf(SchedulerState *state){
 
     return 0;
 }
+
 
