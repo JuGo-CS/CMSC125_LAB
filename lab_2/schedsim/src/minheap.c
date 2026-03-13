@@ -70,3 +70,4 @@ int heap_extract_min(MinHeap *heap, SchedulerState *state){
 
     return result;
 }
+

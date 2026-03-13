@@ -6,12 +6,12 @@
 int schedule_sjf(SchedulerState *state){
 
     MinHeap heap = {0};
-    int completed = 0;
+    int completed_process = 0;
     int next_process = 0;
 
     state->current_time = 0;
 
-    while(completed < state->num_processes){
+    while(completed_process < state->num_processes){
 
         while(next_process < state->num_processes &&
               state->processes[next_process].arrival_time <= state->current_time){
@@ -36,7 +36,7 @@ int schedule_sjf(SchedulerState *state){
         p->finish_time = state->current_time;
         p->remaining_time = 0;
 
-        completed++;
+        completed_process++;
     }
 
     return 0;
