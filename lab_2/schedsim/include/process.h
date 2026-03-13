@@ -22,4 +22,10 @@ typedef struct{
     // bool is_queued;
 } Processes_pointer;
 
+typedef struct {
+    char name[16];    
+    int start;        
+    int end;          
+} GanttEntry;
+
 #endif

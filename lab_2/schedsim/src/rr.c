@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "./../include/scheduler.h"
 #include "./../include/queue.h"
 #include "./../include/queue_utils.h"
@@ -13,6 +14,7 @@ int schedule_rr(SchedulerState *state, int quantum_time){
     Processes_pointer processes[state->num_processes];
 
     Process *current_process = NULL;
+    GanttEntry ganttentry = {0};
     int current_quantum_left = 0;
 
     int complete_counter = 0;
@@ -35,6 +37,9 @@ int schedule_rr(SchedulerState *state, int quantum_time){
             current_process = dequeue(&queue);
             current_quantum_left = quantum_time;
 
+            strcpy(ganttentry.name, current_process->pid);
+            ganttentry.start = state->current_time;
+
             if(current_process->start_time == -1){
                 current_process->start_time = state->current_time;
             }
@@ -48,14 +53,22 @@ int schedule_rr(SchedulerState *state, int quantum_time){
 
         if(current_process->remaining_time == 0){
             current_process->finish_time = state->current_time;
-            complete_counter++;
 
+            ganttentry.end = state->current_time;
+            state->gantt[state->gantt_size++] = ganttentry;
+            ganttentry = (GanttEntry){0};
+
+            complete_counter++;
             current_process = NULL;
         } 
         
         else if(current_quantum_left == 0){
             enqueue(&queue, current_process);
             current_process = NULL;
+
+            ganttentry.end = state->current_time;
+            state->gantt[state->gantt_size++] = ganttentry;
+            ganttentry = (GanttEntry){0};
         }
 
     }

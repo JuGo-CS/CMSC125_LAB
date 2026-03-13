@@ -10,6 +10,9 @@ typedef struct {
     int current_time;       // Current simulation time
     // ... additional fields for metrics, Gantt chart, etc.
     // Recall: CMSC 141
+
+    GanttEntry gantt[10000];   // or define a MAX_GANTT_ENTRIES
+    int gantt_size;
 } SchedulerState;
 
 // Return 0 on success, -1 on error (command line etiquette)

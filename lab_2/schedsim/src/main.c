@@ -1,6 +1,7 @@
 #include "./../include/process.h"
 #include "./../include/scheduler.h"
 #include "./../include/metrics.h"
+#include "./../include/gantt.h"
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,6 +66,7 @@ int main(int argc, char *argv[]) {
             p.remaining_time = p.burst_time; 
             p.start_time = -1;
             state.processes[state.num_processes++] = p;
+            state.gantt_size = 0;
             token = strtok(NULL, ",");  
         }
     } else if (input_file) {
@@ -122,13 +124,13 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "No Algorithm Found!\n");
         exit(1);
     }
-
+    print_gantt(&state);
     print_metrics(&state);
 
-    printf("\n\nScheduling algorithm: %s\n", algorithm);
-    for(int i = 0; i < state.num_processes; i++) {
-        printf("%d Process: %s\n", i + 1, state.processes[i].pid);
-    }
+    // printf("\n\nScheduling algorithm: %s\n", algorithm);
+    // for(int i = 0; i < state.num_processes; i++) {
+    //     printf("%d Process: %s\n", i + 1, state.processes[i].pid);
+    // }
 
     return 0;
 }

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "./../include/scheduler.h"
 #include "./../include/queue.h"
 #include "./../include/queue_utils.h"
@@ -13,6 +14,7 @@ int schedule_fcfs(SchedulerState *state){
     Processes_pointer processes[state->num_processes];         // to initialize all the process, it will be used for queueing the process logic
 
     Process *current_process = NULL;
+    GanttEntry ganttentry = {0};
 
     int complete_counter = 0;
     int processes_unqueued = state->num_processes;
@@ -32,6 +34,8 @@ int schedule_fcfs(SchedulerState *state){
             current_process = dequeue(&queue);
 
             if(current_process->start_time == -1){
+                strcpy(ganttentry.name, current_process->pid);
+                ganttentry.start = state->current_time;
                 current_process->start_time = state->current_time;
             }
         }
@@ -41,6 +45,11 @@ int schedule_fcfs(SchedulerState *state){
 
         if(current_process->remaining_time == 0){
             current_process->finish_time = state->current_time;
+
+            ganttentry.end = state->current_time;
+            state->gantt[state->gantt_size++] = ganttentry;
+            ganttentry = (GanttEntry){0};
+
             current_process = NULL;
             complete_counter++;
         }

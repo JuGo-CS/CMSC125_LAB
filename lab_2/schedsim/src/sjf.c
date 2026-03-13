@@ -4,12 +4,15 @@
 #include "./../include/minheap_utils.h"
 #include "./../include/utils.h"
 #include <stdio.h>
+#include <string.h>
 
 int schedule_sjf(SchedulerState *state){
 
     MinHeap heap = {0};
     Processes_pointer processes[state->num_processes];
+
     Process *current_process = NULL;
+    GanttEntry ganttentry = {0};
 
     int completed_process = 0;
     int processes_not_inserted = state->num_processes;
@@ -29,6 +32,9 @@ int schedule_sjf(SchedulerState *state){
             int min_index = heap_extract_min(&heap, state);
             current_process = &state->processes[min_index];
 
+            strcpy(ganttentry.name, current_process->pid);
+            ganttentry.start = state->current_time;
+
             if(current_process->start_time == -1){
                 current_process->start_time = state->current_time;
             }
@@ -39,6 +45,11 @@ int schedule_sjf(SchedulerState *state){
 
         if (current_process->remaining_time == 0) {
             current_process->finish_time = state->current_time;
+
+            ganttentry.end = state->current_time;
+            state->gantt[state->gantt_size++] = ganttentry;
+            ganttentry = (GanttEntry){0};
+
             current_process = NULL;
             completed_process++;
         }
