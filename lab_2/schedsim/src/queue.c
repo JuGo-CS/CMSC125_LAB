@@ -2,6 +2,7 @@
 #include "./../include/scheduler.h"
 #include <stdlib.h>
 #include "./../include/queue.h"
+#include "./../include/queue_utils.h"
 
 int queue_size(Queue *queue){
     return queue->size;
@@ -48,3 +49,4 @@ void initialize_process_for_queue(SchedulerState *state, Process_queued *process
         // processes[i].is_queued = false;
     }
 }
+
