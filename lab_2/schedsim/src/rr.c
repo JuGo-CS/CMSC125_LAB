@@ -18,14 +18,14 @@ int schedule_rr(SchedulerState *state, int quantum_time){
     int current_quantum_left = 0;
 
     int complete_counter = 0;
-    int processes_unqueued = state->num_processes;
+    int unqueued_counter = state->num_processes;
     
 
     initialize_processes_pointer(state, processes);
 
     while(complete_counter < state->num_processes){
 
-        check_arrivals(state, processes, &processes_unqueued, &queue);
+        check_arrivals(state->current_time, processes, &unqueued_counter, &queue);
 
         if(current_process == NULL){
 
@@ -49,7 +49,7 @@ int schedule_rr(SchedulerState *state, int quantum_time){
         current_process->remaining_time--;
         current_quantum_left--;
 
-        check_arrivals(state, processes, &processes_unqueued, &queue);
+        check_arrivals(state->current_time, processes, &unqueued_counter, &queue);
 
         if(current_process->remaining_time == 0){
             current_process->finish_time = state->current_time;

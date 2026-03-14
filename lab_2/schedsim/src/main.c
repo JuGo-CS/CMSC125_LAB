@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
                 long val = strtol(optarg, &endptr, 10);
 
                 if (*endptr != '\0' || val <= 0) {
-                    fprintf(stderr, "Error: Quantum time '%s' must be a positive integer.\n", optarg);
+                    fprintf(stderr, "Error: Invalid Quantum time '%s' input!\n", optarg);
                     exit(1);
                 }
                 

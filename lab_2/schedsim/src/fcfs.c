@@ -10,20 +10,20 @@
 
 int schedule_fcfs(SchedulerState *state){
 
-    Queue queue = {0};                                      // the queue itself for this algorithm 
-    Processes_pointer processes[state->num_processes];         // to initialize all the process, it will be used for queueing the process logic
+    Queue queue = {0};                                          // the queue itself for this algorithm 
+    Processes_pointer processes[state->num_processes];          // to initialize all the process, it will be used for queueing the process logic
 
     Process *current_process = NULL;
     GanttEntry ganttentry = {0};
 
     int complete_counter = 0;
-    int processes_unqueued = state->num_processes;
+    int unqueued_counter = state->num_processes;
 
     initialize_processes_pointer(state, processes);
 
     while(complete_counter < state->num_processes){
 
-        check_arrivals(state, processes, &processes_unqueued, &queue);
+        check_arrivals(state->current_time, processes, &unqueued_counter, &queue);
 
         if(current_process == NULL){
             if(queue.size == 0){

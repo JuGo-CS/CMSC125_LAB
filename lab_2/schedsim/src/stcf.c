@@ -13,14 +13,14 @@ int schedule_stcf(SchedulerState *state){
     GanttEntry ganttentry = {0};
 
     int completed = 0;
-    int processes_not_inserted = state->num_processes;
+    int notinserted_counter = state->num_processes;
     char current_pid[16] = "x_pid_holder";
 
     initialize_processes_pointer(state, processes);
 
     while(completed < state->num_processes){
 
-        check_arrivals_heap(state, processes, &processes_not_inserted, &heap);
+        check_arrivals_heap(state, processes, &notinserted_counter, &heap);
 
         if(heap.size == 0){
             state->current_time++;
@@ -48,7 +48,7 @@ int schedule_stcf(SchedulerState *state){
         p->remaining_time--;
         state->current_time++;
 
-        check_arrivals_heap(state, processes, &processes_not_inserted, &heap);
+        check_arrivals_heap(state, processes, &notinserted_counter, &heap);
 
         if(p->remaining_time == 0){
             p->finish_time = state->current_time;

@@ -15,13 +15,13 @@ int schedule_sjf(SchedulerState *state){
     GanttEntry ganttentry = {0};
 
     int completed_process = 0;
-    int processes_not_inserted = state->num_processes;
+    int notinserted_counter = state->num_processes;
 
     initialize_processes_pointer(state, processes);
 
     while(completed_process < state->num_processes){
 
-        check_arrivals_heap(state, processes, &processes_not_inserted, &heap);
+        check_arrivals_heap(state, processes, &notinserted_counter, &heap);
 
         if(current_process == NULL){
             if(heap.size == 0){
