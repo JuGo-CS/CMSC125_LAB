@@ -9,6 +9,9 @@
 #include "./../include/utils.h"
 
 
+// Run RR scheduler using the given time quantum.
+// - state: contains the processes and where results are recorded.
+// - quantum_time: how many time units each process can run before being preempted.
 int schedule_rr(SchedulerState *state, int quantum_time){
     Queue queue = {0};
     Processes_pointer processes[state->num_processes];
@@ -23,13 +26,17 @@ int schedule_rr(SchedulerState *state, int quantum_time){
 
     initialize_processes_pointer(state, processes);
 
+    // Keep going until all processes finish.
     while(complete_counter < state->num_processes){
 
+        // Add any newly arrived processes into the ready queue.
         check_arrivals(state->current_time, processes, &unqueued_counter, &queue);
 
+        // If no process is running, grab the next one (if any).
         if(current_process == NULL){
 
             if(queue.size == 0){
+                // nothing to run right now, just bump simulation time
                 state->current_time++;
                 continue;
             }
@@ -45,10 +52,12 @@ int schedule_rr(SchedulerState *state, int quantum_time){
             }
         }
 
+        // Run the current process for one time unit.
         state->current_time++;
         current_process->remaining_time--;
         current_quantum_left--;
 
+        // Check if new processes arrived during this time unit.
         check_arrivals(state->current_time, processes, &unqueued_counter, &queue);
 
         if(current_process->remaining_time == 0){

@@ -7,16 +7,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Parse args, load processes, run the chosen scheduling algo, print results.
 int main(int argc, char *argv[]) {
     // initialize scheduler state
     SchedulerState state = {0}; 
 
-    // get flags and arguments
     int opt;
     char *algorithm = NULL;
     char *process_str = NULL;
     char *input_file = NULL;
-    char *holder_qtime = NULL;
     int quantum_time = 0;
     
     static struct option long_options[] = {

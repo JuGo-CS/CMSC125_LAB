@@ -3,8 +3,13 @@
 #include <stdio.h>
 #include <string.h>
 
+// How many time units correspond to one character in the chart.\
+// Mas malaki value, mas short ang gantt chart
+// Mas maliit value, mas mahaba gantt
 #define GANTT_SCALE 5
 
+// Print a very basic ASCII Gantt chart using the stored entries.
+// - state: scheduler state containing the gantt array and its size
 void print_gantt(SchedulerState *state) {
 
     if (state->gantt_size == 0) {

@@ -4,10 +4,14 @@
 #include "./../include/queue.h"
 #include "./../include/queue_utils.h"
 
+// Return how many items are currently in the queue.
 int queue_size(Queue *queue){
     return queue->size;
 }
 
+// Add a process pointer to the end of the queue.
+// - queue: the queue to enqueue into
+// - new_process: pointer to the process being queued
 void enqueue(Queue *queue, Process *new_process){
 
     Queue_process *new_node = malloc(sizeof(Queue_process));
@@ -26,6 +30,8 @@ void enqueue(Queue *queue, Process *new_process){
     queue->size++;
 }
 
+// Remove and return the oldest process in the queue.
+// Returns NULL if the queue is empty (caller should not do this currently).
 Process* dequeue(Queue *queue){
 
     Queue_process *curr_head = queue->head_process;

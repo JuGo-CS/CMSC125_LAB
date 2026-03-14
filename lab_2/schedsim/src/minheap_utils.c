@@ -1,8 +1,9 @@
-
 #include "./../include/scheduler.h"
 #include "./../include/queue.h"
 #include "./../include/minheap.h"
 
+// Take the process at `index` from the waiting list and push it into the heap.
+// This does a swap-with-last removal from the array of waiting processes.
 void inserting_process_heap(Processes_pointer *processes, int *notinserted_counter, MinHeap *heap, SchedulerState *state, int index){
 
     Processes_pointer holder = processes[index];
@@ -14,6 +15,8 @@ void inserting_process_heap(Processes_pointer *processes, int *notinserted_count
     heap_insert(heap, state, process_index);
 }
 
+// Scan waiting processes and insert any that have arrived into the heap.
+// - state: used for current_time and to resolve process pointers
 void check_arrivals_heap(SchedulerState *state, Processes_pointer *processes, int *notinserted_counter, MinHeap *heap){
     for(int i = 0; i < *notinserted_counter; i++){
         if(processes[i].processes->arrival_time <= state->current_time){

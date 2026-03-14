@@ -46,3 +46,4 @@ void simulate_scheduler(SchedulerState *state) { //void simulate_scheduler(Sched
     calculate_metrics(state);
     print_results(state);
 }
+}

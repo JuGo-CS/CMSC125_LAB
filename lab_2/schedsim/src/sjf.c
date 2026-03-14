@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
+// Run SJF on the provided state.
+// The algorithm picks the shortest job that has arrived and runs it to completion.
 int schedule_sjf(SchedulerState *state){
 
     MinHeap heap = {0};
@@ -19,12 +21,16 @@ int schedule_sjf(SchedulerState *state){
 
     initialize_processes_pointer(state, processes);
 
+    // Run until all processes are finished.
     while(completed_process < state->num_processes){
 
+        // Add any newly arrived processes into the heap so the scheduler can pick.
         check_arrivals_heap(state, processes, &notinserted_counter, &heap);
 
+        // If we don't have a current process, grab the shortest one from the heap.
         if(current_process == NULL){
             if(heap.size == 0){
+                // nothing ready yet, advance time
                 state->current_time++;
                 continue;
             }
@@ -40,6 +46,7 @@ int schedule_sjf(SchedulerState *state){
             }
         }
 
+        // Run current process for one time unit.
         current_process->remaining_time--;
         state->current_time++;
 

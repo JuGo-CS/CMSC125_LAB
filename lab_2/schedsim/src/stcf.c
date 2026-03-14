@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
+// Run STCF on the state (preemptive shortest remaining burst first).
 int schedule_stcf(SchedulerState *state){
 
     MinHeap heap = {0};
@@ -18,15 +19,19 @@ int schedule_stcf(SchedulerState *state){
 
     initialize_processes_pointer(state, processes);
 
+    // Keep going until every process is done.
     while(completed < state->num_processes){
 
+        // Add newly arrived processes into the heap.
         check_arrivals_heap(state, processes, &notinserted_counter, &heap);
 
         if(heap.size == 0){
+            // nothing ready yet
             state->current_time++;
             continue;
         }
 
+        // Pick the process with the smallest remaining time.
         int min_index = heap_extract_min(&heap, state);
         Process *p = &state->processes[min_index];
 
@@ -34,6 +39,7 @@ int schedule_stcf(SchedulerState *state){
             p->start_time = state->current_time;
         }
 
+        // If we switched processes, close the previous gantt entry and start a new one.
         if(strcmp(p->pid, current_pid) != 0){
             if(strcmp(current_pid, "x_pid_holder") != 0){
                 ganttentry.end = state->current_time;
@@ -48,6 +54,7 @@ int schedule_stcf(SchedulerState *state){
         p->remaining_time--;
         state->current_time++;
 
+        // New arrivals might come in during this time unit.
         check_arrivals_heap(state, processes, &notinserted_counter, &heap);
 
         if(p->remaining_time == 0){
