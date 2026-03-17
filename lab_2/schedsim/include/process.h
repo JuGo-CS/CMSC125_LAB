@@ -10,6 +10,7 @@
 #define PROCESS_H
 
 #define PID_LENGTH 16
+#define UNKNOWN_TIME -1
 typedef struct {
     char pid[PID_LENGTH];   // Process identifier
     int arrival_time;       // When process arrives
