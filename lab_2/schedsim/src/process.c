@@ -23,6 +23,26 @@ typedef struct Event {
     struct Event *next;
 } Event;
 
+static Event *initialize_events(SchedulerState *state) {
+    (void)state;
+    return NULL;
+}
+
+static Event *pop_event(Event **queue) {
+    (void)queue;
+    return NULL;
+}
+
+static void handle_arrival(SchedulerState *state, Process *p) {
+    (void)state;
+    (void)p;
+}
+
+static void handle_completion(SchedulerState *state, Process *p) {
+    (void)state;
+    (void)p;
+}
+
 void simulate_scheduler(SchedulerState *state) { //void simulate_scheduler(SchedulerState *state, SchedulingAlgorithm algorithm) {
     Event *event_queue = initialize_events(state);
     
@@ -42,7 +62,7 @@ void simulate_scheduler(SchedulerState *state) { //void simulate_scheduler(Sched
         
         free(current);
     }
-    
-    calculate_metrics(state);
-    print_results(state);
+        
+    calculate_metrics(state, state->num_processes);
+    print_metrics(state);
 }

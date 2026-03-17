@@ -8,13 +8,13 @@
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -include
 
 # Target executable
 TARGET = exec
 
 # Source files
-SRC = src/main.c
+SRC = src/*.c
 
 
 

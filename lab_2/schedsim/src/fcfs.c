@@ -5,10 +5,8 @@
 #include "./../include/queue.h"
 
 
-
 int schedule_fcfs(SchedulerState *state){
-
-    Queue queue = {0};                              // the queue itself for this algorithm 
+    Queue queue = {0};                                      // the queue itself for this algorithm 
     Process_queued processes[state->num_processes];         // to initialize all the process, it will be used for queueing the process logic
     int complete_counter = 0;
     int processes_unqueued = state->num_processes;

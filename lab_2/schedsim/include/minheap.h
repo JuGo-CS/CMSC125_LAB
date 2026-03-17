@@ -11,5 +11,4 @@ typedef struct {
 void heap_insert(MinHeap *heap, SchedulerState *state, int process_index);
 int heap_extract_min(MinHeap *heap, SchedulerState *state);
 
-
 #endif

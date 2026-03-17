@@ -58,7 +58,7 @@ int schedule_rr(SchedulerState *state, int quantum_time){
 
     }
 
-
+    return 0;
 }
 
 // int schedule_rr(SchedulerState *state, int quantum_time){

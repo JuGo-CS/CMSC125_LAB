@@ -8,7 +8,6 @@ int queue_size(Queue *queue){
 }
 
 void enqueue(Queue *queue, Process *new_process){
-
     Queue_process *new_node = malloc(sizeof(Queue_process));
     new_node->process = new_process;
     new_node->next_process = NULL;

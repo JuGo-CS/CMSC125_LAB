@@ -3,8 +3,9 @@
 #include "./../include/process.h"
 #include "./../include/scheduler.h"
 
-void calculate_metrics(SchedulerState *state) {
-    for (int i = 0; i < state->num_processes; i++) {
+void calculate_metrics(SchedulerState *state, int n) {
+    int count = (n > 0) ? n : state->num_processes;
+    for (int i = 0; i < count; i++) {
         Process *p = &state->processes[i];
         
         // Turnaround time = Finish time - Arrival time
