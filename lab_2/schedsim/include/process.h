@@ -1,8 +1,17 @@
+/**
+ * This header file defines the Process structure and related functions for a CPU scheduling 
+ * simulator. The Process structure contains fields for process identification, timing information, 
+ * and scheduling parameters. 
+ * 
+ * The construct_process function initializes a Process instance. 
+ * The destruct_process function handles Process memory cleanup.
+ */
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#define PID_LENGTH 16
 typedef struct {
-    char pid[16];           // Process identifier
+    char pid[PID_LENGTH];   // Process identifier
     int arrival_time;       // When process arrives
     int burst_time;         // Total CPU time needed
     int remaining_time;     // For preemptive algorithms
@@ -15,5 +24,7 @@ typedef struct {
     int response_time;
     // int last_update;       // For calculating waiting_time
 } Process;
+Process* construct_process(char *, int, int);
+void destruct_process(Process*);
 
 #endif
