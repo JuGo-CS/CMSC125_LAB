@@ -8,7 +8,6 @@ int schedule_sjf(SchedulerState *state){
     state->running->response_time = state->running->start_time - state->running->arrival_time;
     state->running->waiting_time = state->running->start_time - state->running->arrival_time;
     state->running->turnaround_time = state->running->finish_time - state->running->arrival_time;
-    
     return 0;
 }
 
