@@ -3,8 +3,8 @@
 #include <string.h>
 #include "./../includes/command.h"
 #include "./../includes/scheduler.h"
-#include "./../includes/data-structures/fifo-queue.h"
-#include "./../includes/data-structures/queue-adt.h"
+#include "./../includes/data-structures/fcfs-process-queue.h"
+#include "./../includes/data-structures/process-queue-adt.h"
 
 int main(int argc, char *argv[]) {
     CommandLineArguments* args = parse_command_line(argc, argv);   
@@ -20,22 +20,22 @@ int main(int argc, char *argv[]) {
     } 
 
     // create queue
-    FIFOQueue* fq = construct_fifo_queue();
+    FCFSProcessQueue* fq = construct_fcfs_process_queue();
     for (int i = 0; i < state.num_processes; i++) {
         fq->queue.enqueue(
-            (AbstractQueue*) fq,
+            (AbstractProcessQueue*) fq,
             construct_process(state.processes[i]->pid, state.processes[i]->arrival_time, state.processes[i]->burst_time)
         );
     }
     
-    FIFOQueueElement* curr = fq->head;
+    FCFSQueueElement* curr = fq->head;
     while (curr != NULL) {  
-        printf("Process %s: Arrival=%d Burst=%d\n", ((Process *) curr->data)->pid,  ((Process *) curr->data)->arrival_time, ((Process *) curr->data)->burst_time);
+        printf("Process %s: Arrival=%d Burst=%d\n", curr->process->pid,  curr->process->arrival_time, curr->process->burst_time);
         curr = curr->next;
     }
     printf("\n");
 
-    destruct_fifo_queue(fq);
+    destruct_fcfs_process_queue(fq);
     free_scheduler_processes(&state);
     free(args);
 

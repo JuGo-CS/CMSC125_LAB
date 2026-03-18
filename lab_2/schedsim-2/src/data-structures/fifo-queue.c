@@ -1,29 +1,27 @@
 #include <stdlib.h>
 #include <string.h>
-#include "./../../includes/data-structures/fifo-queue.h"
+#include "./../../includes/data-structures/process-queue-adt.h"
+#include "./../../includes/data-structures/fcfs-process-queue.h"
 
-// FIFO Queue Implementation
-FIFOQueueElement* construct_fifo_element(void* data) {
-    FIFOQueueElement* element = malloc(sizeof(FIFOQueueElement));
+// FCFS Queue Implementation
+FCFSQueueElement* construct_fcfs_element(Process* process) {
+    FCFSQueueElement* element = malloc(sizeof(FCFSQueueElement));
     if (element) {
-        element->data = data;
+        element->process = process;
         element->next = NULL;
     }
     return element; 
 }
-void destruct_fifo_element(FIFOQueueElement* element) {
-    free(element->data);
+void destruct_fcfs_element(FCFSQueueElement* element) {
+    free(element->process);
     free(element);
 }
 
-// FIFO Implementation
-void fifo_enqueue(AbstractQueue* self, void* data) {
-    FIFOQueue* fq = (FIFOQueue*) self; 
+// fcfs Implementation
+void fcfs_enqueue(AbstractProcessQueue* self, Process* process) {
+    FCFSProcessQueue* fq = (FCFSProcessQueue*) self; 
 
-    FIFOQueueElement* node = malloc(sizeof(FIFOQueueElement));
-    node->data = data;
-    node->next = NULL;
-
+    FCFSQueueElement* node = construct_fcfs_element(process);
     if (fq->tail == NULL) {
         fq->head = fq->tail = node;
     } else {
@@ -33,34 +31,34 @@ void fifo_enqueue(AbstractQueue* self, void* data) {
     self->size++;
 }
 
-void* fifo_dequeue(AbstractQueue* self) {
-    FIFOQueue* fq = (FIFOQueue*)self;
+Process* fcfs_dequeue(AbstractProcessQueue* self) {
+    FCFSProcessQueue* fq = (FCFSProcessQueue*) self;
     if (fq->head == NULL) return NULL;
 
-    FIFOQueueElement* temp = fq->head;
-    void* data = temp->data;
+    FCFSQueueElement* temp = fq->head;
+    Process* process = temp->process; 
 
     fq->head = fq->head->next;
     if (fq->head == NULL) fq->tail = NULL;
 
     free(temp);
     self->size--;
-    return data;
+    return process;
 }
 
-FIFOQueue* construct_fifo_queue() {
-    FIFOQueue* fq = malloc(sizeof(FIFOQueue));
-    fq->queue.enqueue = fifo_enqueue;
-    fq->queue.dequeue = fifo_dequeue;
+FCFSProcessQueue* construct_fcfs_process_queue() {
+    FCFSProcessQueue* fq = malloc(sizeof(FCFSProcessQueue));
+    fq->queue.enqueue = fcfs_enqueue;
+    fq->queue.dequeue = fcfs_dequeue;
     fq->queue.size = 0;
     fq->head = NULL;
     fq->tail = NULL;
     return fq;
 }
 
-void destruct_fifo_queue(FIFOQueue* fq) {
+void destruct_fcfs_process_queue(FCFSProcessQueue* fq) {
     while (fq->head != NULL) {
-        free(fifo_dequeue((AbstractQueue*)fq));
+        free(fcfs_dequeue((AbstractProcessQueue*)fq));
     }
     free(fq);
 }
