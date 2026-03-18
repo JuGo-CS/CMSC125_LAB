@@ -15,6 +15,12 @@ void get_processes_from_file(SchedulerState *state, char *filename) {
     int arrival_time, burst_time;
     while (fgets(line, sizeof(line), fptr)) {
         line[strcspn(line, "\n")] = 0; 
+        
+        char first_char;
+        if (sscanf(line, " %c", &first_char) != 1 || first_char == '#') {
+            continue;
+        }
+    
         sscanf(line, "%15[^ ] %d %d", pid, &arrival_time, &burst_time);
         Process* p = construct_process(pid, arrival_time, burst_time);
         if (p) {
