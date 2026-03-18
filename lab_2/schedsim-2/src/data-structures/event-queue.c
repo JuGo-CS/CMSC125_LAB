@@ -36,7 +36,7 @@ Event* dequeue_event(EventQueue* q) {
 }
 
 EventQueue* construct_event_queue() {
-    EventQueue* q = malloc(sizeof(EventQueue));
+    EventQueue* q = calloc(1, sizeof(EventQueue));
     q->head = NULL;
     return q;
 }

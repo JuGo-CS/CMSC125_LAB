@@ -13,7 +13,6 @@ FCFSQueueElement* construct_fcfs_element(Process* process) {
     return element; 
 }
 void destruct_fcfs_element(FCFSQueueElement* element) {
-    free(element->process);
     free(element);
 }
 
@@ -46,19 +45,24 @@ Process* fcfs_dequeue(AbstractProcessQueue* self) {
     return process;
 }
 
+void destruct_fcfs_process_queue(AbstractProcessQueue* self) {
+    FCFSProcessQueue* fq = (FCFSProcessQueue*) self;
+    while (fq->head != NULL) {
+        FCFSQueueElement* temp = fq->head;
+        fq->head = fq->head->next;
+        free(temp); 
+    }
+    free(fq);
+}
+
 FCFSProcessQueue* construct_fcfs_process_queue() {
     FCFSProcessQueue* fq = malloc(sizeof(FCFSProcessQueue));
     fq->queue.enqueue = fcfs_enqueue;
     fq->queue.dequeue = fcfs_dequeue;
+    fq->queue.destruct_queue = destruct_fcfs_process_queue;
     fq->queue.size = 0;
     fq->head = NULL;
     fq->tail = NULL;
     return fq;
 }
 
-void destruct_fcfs_process_queue(FCFSProcessQueue* fq) {
-    while (fq->head != NULL) {
-        free(fcfs_dequeue((AbstractProcessQueue*)fq));
-    }
-    free(fq);
-}

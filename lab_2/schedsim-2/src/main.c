@@ -4,6 +4,8 @@
 #include "./../includes/command.h"
 #include "./../includes/scheduler.h"
 #include "./../includes/simulator.h"
+#include "./../includes/data-structures/fcfs-process-queue.h"
+#include "./../includes/data-structures/sjf-process-queue.h"
 
 int main(int argc, char *argv[]) {
     CommandLineArguments* args = parse_command_line(argc, argv);   
@@ -21,18 +23,19 @@ int main(int argc, char *argv[]) {
 
     if(args->algorithm) {
         if(strcasecmp(args->algorithm, "fcfs") == 0) {
+            state.waiting = (AbstractProcessQueue*) construct_fcfs_process_queue();
             algorithm = schedule_fcfs;
         }
-        else if(strcasecmp(args->algorithm, "rr") == 0) {
-            algorithm = schedule_rr;
-        }
         else if(strcasecmp(args->algorithm, "sjf") == 0) {
+            state.waiting = (AbstractProcessQueue*) construct_sjf_process_queue();
             algorithm = schedule_sjf;
         }
         else if(strcasecmp(args->algorithm, "stcf") == 0) {
             algorithm = schedule_stcf;
         }
-        else {
+        else if(strcasecmp(args->algorithm, "rr") == 0) {
+            algorithm = schedule_rr;
+        } else {
             fprintf(stderr, "Invalid Algorithm!\n");
             exit(1);
         }
@@ -42,7 +45,7 @@ int main(int argc, char *argv[]) {
     }
 
     simulate_scheduler(&state, algorithm); 
-    free_scheduler_processes(&state);
+    free_scheduler(&state);
     free(args);
 
     return 0;

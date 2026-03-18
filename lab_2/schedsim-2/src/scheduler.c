@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./../includes/scheduler.h"
+#include "./../includes/data-structures/fcfs-process-queue.h"
 #include "./../includes/objects/process.h"
 
 void get_processes_from_file(SchedulerState *state, char *filename) {
@@ -48,8 +49,11 @@ void get_processes_from_string(SchedulerState *state, char *process_str) {
     }
 }
  
-void free_scheduler_processes(SchedulerState *state) {
+void free_scheduler(SchedulerState *state) {
     for (int i = 0; i < state->num_processes; i++) {
         free(state->processes[i]);
+    }
+    if (state->waiting) {
+        state->waiting->destruct_queue(state->waiting);
     }
 }

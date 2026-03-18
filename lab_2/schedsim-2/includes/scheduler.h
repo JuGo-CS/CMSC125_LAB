@@ -2,18 +2,21 @@
 #define SCHEDULER_STATE_H
 
 #include "./objects/process.h" 
-#define MAX_PROCESSES 256
+#include "./data-structures/process-queue-adt.h"
 
 // Scheduler State
+#define MAX_PROCESSES 256
 typedef struct {
     Process* processes[MAX_PROCESSES];   // Array of all processes
+    Process* running;                    // Running process
+    AbstractProcessQueue* waiting;       // Waiting processes 
     int num_processes;                   // Number of processes
     int current_time;                    // Current simulation time
 } SchedulerState;
 
 void get_processes_from_file(SchedulerState*, char*);
 void get_processes_from_string(SchedulerState*, char*);
-void free_scheduler_processes(SchedulerState*);
+void free_scheduler(SchedulerState*);
 
 // Scheduling algorithms
 // Return 0 on success, -1 on error (command line etiquette)

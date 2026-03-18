@@ -15,7 +15,6 @@ SJFQueueElement* construct_sjf_element(Process* process) {
     return element; 
 }
 void destruct_sjf_element(SJFQueueElement* element) {
-    free(element->process);
     free(element);
 }
 
@@ -60,18 +59,23 @@ Process* sjf_dequeue(AbstractProcessQueue* self) {
     return data;
 }
 
+void destruct_sjf_process_queue(AbstractProcessQueue* self) {
+    SJFProcessQueue* fq = (SJFProcessQueue*) self;
+    while (fq->head != NULL) {
+        SJFQueueElement* temp = fq->head;
+        fq->head = fq->head->next;
+        free(temp); 
+    }
+    free(fq);
+}
+
 SJFProcessQueue* construct_sjf_process_queue() {
     SJFProcessQueue * q = malloc(sizeof(SJFProcessQueue));
     q->queue.enqueue = sjf_enqueue;
     q->queue.dequeue = sjf_dequeue;
+    q->queue.destruct_queue = destruct_sjf_process_queue;
     q->queue.size = 0;
     q->head = NULL;
     return q;
 }
 
-void destruct_sjf_process_queue(SJFProcessQueue* q) {
-    while (q->head != NULL) {
-        free(sjf_dequeue((AbstractProcessQueue*) q));
-    }
-    free(q);
-}

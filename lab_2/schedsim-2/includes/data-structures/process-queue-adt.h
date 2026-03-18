@@ -6,6 +6,7 @@
 typedef struct AbstractProcessQueue {
     void (*enqueue)(struct AbstractProcessQueue*, Process* process);
     Process* (*dequeue)(struct AbstractProcessQueue*);
+    void (*destruct_queue)(struct AbstractProcessQueue*);
     int size;
 } AbstractProcessQueue;
 

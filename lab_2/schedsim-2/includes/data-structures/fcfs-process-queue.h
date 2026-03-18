@@ -21,6 +21,4 @@ typedef struct {
 } FCFSProcessQueue;
 
 FCFSProcessQueue* construct_fcfs_process_queue();
-void destruct_fcfs_process_queue(FCFSProcessQueue*);
-
 #endif

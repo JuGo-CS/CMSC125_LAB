@@ -22,6 +22,5 @@ typedef struct {
 } SJFProcessQueue;
 
 SJFProcessQueue* construct_sjf_process_queue();
-void destruct_sjf_process_queue(SJFProcessQueue*);
 
 #endif
