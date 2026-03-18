@@ -1,8 +1,7 @@
 #gey
 
-hello 20 30 
-world 40 40 
+A 10 30 
+B 20 40
+C 50 50
+D 30 10 
 
-#maathefucka
-test 50 100
-this 100 20 10
