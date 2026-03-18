@@ -3,8 +3,10 @@
 #include <string.h>
 #include "./../includes/command.h"
 #include "./../includes/scheduler.h"
-#include "./../includes/data-structures/fcfs-process-queue.h"
+#include "./../includes/data-structures/sjf-process-queue.h"
 #include "./../includes/data-structures/process-queue-adt.h"
+#include "./../includes/objects/event.h"
+
 
 int main(int argc, char *argv[]) {
     CommandLineArguments* args = parse_command_line(argc, argv);   
@@ -20,7 +22,7 @@ int main(int argc, char *argv[]) {
     } 
 
     // create queue
-    FCFSProcessQueue* fq = construct_fcfs_process_queue();
+    SJFProcessQueue* fq = construct_sjf_process_queue();
     for (int i = 0; i < state.num_processes; i++) {
         fq->queue.enqueue(
             (AbstractProcessQueue*) fq,
@@ -28,14 +30,17 @@ int main(int argc, char *argv[]) {
         );
     }
     
-    FCFSQueueElement* curr = fq->head;
+    SJFQueueElement* curr = fq->head;
     while (curr != NULL) {  
         printf("Process %s: Arrival=%d Burst=%d\n", curr->process->pid,  curr->process->arrival_time, curr->process->burst_time);
         curr = curr->next;
     }
     printf("\n");
+    Event* event = construct_event(1, EVENT_ARRIVAL, state.processes[0], NULL);
+    printf("Event Time:%d,Type:%d, Process=%s\n", event->time, event->type, event->process->pid);
+    destruct_event(event);
 
-    destruct_fcfs_process_queue(fq);
+    destruct_sjf_process_queue(fq);
     free_scheduler_processes(&state);
     free(args);
 

@@ -1,19 +1,17 @@
-// #include <stdlib.h>
-// #include "./../../includes/objects/event.h" 
+#include <stdlib.h>
+#include "./../../includes/objects/event.h" 
 
-// Event* construct_event(int time, EventType type, Process* process, Event* next_event) {
-//     Event* event = (Event *) malloc(sizeof(Event));
-//     if (event) {
-//         memset(event, 0, sizeof(Event));
-//         event->time = time;
-//         event->type = type;
-//         event->process = process;
-//     }
-//     return event;
-// }
+Event* construct_event(int time, EventType type, Process* process, Event* next_event) {
+    Event* event = (Event *) calloc(1, sizeof(Event));
+    if (event) {
+        event->time = time;
+        event->type = type;
+        event->process = process;
+        event->next = next_event;
+    }
+    return event;
+}
 
-// void destruct_event(Event* event) {
-//     if (event) {
-//         free(event);
-//     }
-// }
+void destruct_event(Event* event) {
+    free(event);
+}
