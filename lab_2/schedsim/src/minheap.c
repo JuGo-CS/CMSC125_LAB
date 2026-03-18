@@ -16,7 +16,7 @@ void heapify_up(MinHeap *heap, SchedulerState *state, int index){
         int p1 = heap->data[parent];
         int p2 = heap->data[index];
 
-        if(state->processes[p1].burst_time <= state->processes[p2].burst_time)
+        if(state->processes[p1]->burst_time <= state->processes[p2]->burst_time)
             break;
 
         swap(&heap->data[parent], &heap->data[index]);
@@ -34,7 +34,7 @@ void heapify_down(MinHeap *heap, SchedulerState *state, int index){
             int p1 = heap->data[left];
             int p2 = heap->data[smallest];
 
-            if(state->processes[p1].burst_time < state->processes[p2].burst_time)
+            if(state->processes[p1]->burst_time < state->processes[p2]->burst_time)
                 smallest = left;
         }
 
@@ -42,7 +42,7 @@ void heapify_down(MinHeap *heap, SchedulerState *state, int index){
             int p1 = heap->data[right];
             int p2 = heap->data[smallest];
 
-            if(state->processes[p1].burst_time < state->processes[p2].burst_time)
+            if(state->processes[p1]->burst_time < state->processes[p2]->burst_time)
                 smallest = right;
         }
 

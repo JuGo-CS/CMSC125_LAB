@@ -14,7 +14,7 @@ int schedule_sjf(SchedulerState *state){
     while(completed_process < state->num_processes){
 
         while(next_process < state->num_processes &&
-              state->processes[next_process].arrival_time <= state->current_time){
+              state->processes[next_process]->arrival_time <= state->current_time){
 
             heap_insert(&heap, state, next_process++);
         }
@@ -25,7 +25,7 @@ int schedule_sjf(SchedulerState *state){
         }
 
         int min_index = heap_extract_min(&heap, state);
-        Process *p = &state->processes[min_index];
+        Process *p = state->processes[min_index];
 
         if(p->start_time == -1){
             p->start_time = state->current_time;

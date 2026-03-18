@@ -1,13 +1,9 @@
-#include "./../include/command-line-parser.h"
-#include "./../include/scheduler.h"
-
 #include <stdio.h>
-
-// #include "./../include/scheduler.h"
-// #include "./../include/metrics.h"
-// #include <getopt.h>
-// #include <stdlib.h>
-// #include <string.h>
+#include <stdlib.h>
+#include <string.h>
+#include "./../include/command-line-parser.h"
+#include "./../include/discrete-event-simulator.h"
+#include "./../include/scheduler.h"
 
 int main(int argc, char *argv[]) {
     CommandLineArguments* args = parse_command_line(argc, argv);   
@@ -22,43 +18,34 @@ int main(int argc, char *argv[]) {
         return 1;
     } 
 
-    if(args->algorithm) {
-        if(strcasecmp(args->algorithm, "fcfs") == 0) {
-            schedule_fcfs(&state);
-        }
+    simulate_scheduler(&state);
+    free_scheduler_processes(&state);
+    free(args);
 
-        else if(strcasecmp(args->algorithm, "rr") == 0) {
-            // initialize_rr(&state);
-            // printf("HAHAHA\n");
-            schedule_rr(&state, args->quantum_time);
-        }
+    // if(args->algorithm) {
+    //     if(strcasecmp(args->algorithm, "fcfs") == 0) {
+    //         schedule_fcfs(&state);
+    //     }
+    //     else if(strcasecmp(args->algorithm, "rr") == 0) {
+    //         schedule_rr(&state, args->quantum_time);
+    //     }
+    //     else if(strcasecmp(args->algorithm, "sjf") == 0) {
+    //         schedule_sjf(&state);
+    //     }
+    //     else if(strcasecmp(args->algorithm, "stcf") == 0) {
+    //         schedule_stcf(&state);
+    //     }
+    //     else {
+    //         fprintf(stderr, "Invalid Algorithm!\n");
+    //         exit(1);
+    //     }
+    // } else {
+    //     fprintf(stderr, "No Algorithm Found!\n");
+    //     exit(1);
+    // }
 
-        else if(strcasecmp(args->algorithm, "sjf") == 0) {
-            schedule_sjf(&state);
-        }
-
-        else if(strcasecmp(args->algorithm, "stcf") == 0) {
-            schedule_stcf(&state);
-        }
-
-        // else if(strcasecmp(algorithm, "mlfq") == 0) {
-            
-        // }
-
-        else {
-            fprintf(stderr, "Invalid Algorithm!\n");
-            exit(1);
-        }
-
-        calculate_metrics(&state, state.num_processes);
-    }
-
-    else {
-        fprintf(stderr, "No Algorithm Found!\n");
-        exit(1);
-    }
-
-    print_metrics(&state);
+    // calculate_metrics(&state, state.num_processes);
+    // print_metrics(&state);
     return 0;
 }
 

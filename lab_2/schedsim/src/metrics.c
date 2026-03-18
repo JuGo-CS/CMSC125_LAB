@@ -6,7 +6,7 @@
 void calculate_metrics(SchedulerState *state, int n) {
     int count = (n > 0) ? n : state->num_processes;
     for (int i = 0; i < count; i++) {
-        Process *p = &state->processes[i];
+        Process *p = state->processes[i];
         
         // Turnaround time = Finish time - Arrival time
         p->turnaround_time =  p->finish_time - p->arrival_time;
@@ -22,7 +22,7 @@ void calculate_metrics(SchedulerState *state, int n) {
 double calculate_average_turnaround(SchedulerState *state) {
     double sum = 0.0;
     for (int i = 0; i < state->num_processes; i++) {
-        sum +=  state->processes[i].turnaround_time;
+        sum +=  state->processes[i]->turnaround_time;
     }
     return sum / state->num_processes;
 }
@@ -35,7 +35,7 @@ void print_metrics(SchedulerState *state) {
     printf("--------|------|------|------|--------|--------|--------\n");
 
     for (int i = 0; i < state->num_processes; i++) {
-        Process *p = &state->processes[i];
+        Process *p = state->processes[i];
         
         // Calculate totals for the average later
         int tt = p->finish_time - p->arrival_time;

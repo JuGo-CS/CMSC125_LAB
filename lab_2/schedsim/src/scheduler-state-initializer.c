@@ -45,3 +45,8 @@ void get_processes_from_string(SchedulerState *state, char *process_str) {
     }
 }
  
+void free_scheduler_processes(SchedulerState *state) {
+    for (int i = 0; i < state->num_processes; i++) {
+        free(state->processes[i]);
+    }
+}
