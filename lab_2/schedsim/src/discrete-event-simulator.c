@@ -21,7 +21,7 @@ void destruct_event(Event* event) {
     free(event);
 }
 
-void simulate_scheduler(SchedulerState* state) {
-    printf("hello");
+void simulate_scheduler(SchedulerState* state, int (*scheduling_algorithm)(SchedulerState*)) {
+    scheduling_algorithm(state);
 }
 

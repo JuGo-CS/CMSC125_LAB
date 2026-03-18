@@ -25,6 +25,6 @@ typedef struct Event {
 
 Event* construct_event(int, EventType, Process*, Event*);
 void destruct_event(Event*);
-void simulate_scheduler(SchedulerState*);
+void simulate_scheduler(SchedulerState*, int (SchedulerState*));
 
 #endif
