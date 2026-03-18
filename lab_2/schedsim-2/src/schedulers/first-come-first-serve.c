@@ -3,7 +3,7 @@
 #include "./../includes/scheduler.h"
 
 int schedule_fcfs(SchedulerState *state){
-    state->running->start_time = state->current_time;
+    state->running->start_time = state->current_time;    
     state->running->finish_time = state->running->start_time + state->running->burst_time;
     state->running->response_time = state->running->start_time - state->running->arrival_time;
     state->running->waiting_time = state->running->start_time - state->running->arrival_time;
