@@ -6,10 +6,10 @@
 
 
 // Priority Queue Implementation
-SJFQueueElement* construct_sjf_element(Process* data) {
+SJFQueueElement* construct_sjf_element(Process* process) {
     SJFQueueElement* element = malloc(sizeof(SJFQueueElement));
     if (element) {
-        element->process = data;
+        element->process = process;
         element->next = NULL;
     }
     return element; 
@@ -24,7 +24,6 @@ void sjf_enqueue(AbstractProcessQueue* self, Process* data) {
     SJFProcessQueue * q = (SJFProcessQueue *) self; 
     SJFQueueElement* node = construct_sjf_element(data);
 
-    // CASE 1: Queue is empty
     if (q->head == NULL) {
         q->head = node;     
     } else {
@@ -61,7 +60,7 @@ Process* sjf_dequeue(AbstractProcessQueue* self) {
     return data;
 }
 
-SJFProcessQueue * construct_sjf_process_queue() {
+SJFProcessQueue* construct_sjf_process_queue() {
     SJFProcessQueue * q = malloc(sizeof(SJFProcessQueue));
     q->queue.enqueue = sjf_enqueue;
     q->queue.dequeue = sjf_dequeue;

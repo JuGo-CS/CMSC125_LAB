@@ -1,5 +1,5 @@
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
+#ifndef EVENT_H
+#define EVENT_H
 
 #include "./process.h"
 
