@@ -28,4 +28,15 @@ typedef struct {
 Process* construct_process(char *, int, int);
 void destruct_process(Process*);
 
+typedef struct{
+    Process *processes;
+    // bool is_queued;
+} Processes_pointer;
+
+typedef struct {
+    char name[16];    
+    int start;        
+    int end;          
+} GanttEntry;
+
 #endif

@@ -14,8 +14,8 @@ CFLAGS = -Wall -Wextra -include
 TARGET = exec
 
 # Source files
+# We compile all source files in src/ so every scheduler file gets linked.
 SRC = src/*.c
-
 
 
 # RULES

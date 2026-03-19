@@ -16,7 +16,11 @@ Process* construct_process(char *pid, int arrival_time, int burst_time) {
     }
     return process;
 }
+<<<<<<< HEAD
 
 void destruct_process(Process *process) {
     free(process);
 }
+=======
+}
+>>>>>>> 38d9a33979a24933dc539f0a5362cdb326f4282b

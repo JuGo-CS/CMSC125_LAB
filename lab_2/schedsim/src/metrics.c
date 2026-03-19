@@ -1,12 +1,20 @@
-#include <stdio.h>
+a#include <stdio.h>
 #include <stdlib.h>
 #include "./../include/process.h"
 #include "./../include/scheduler.h"
 
+<<<<<<< HEAD
 void calculate_metrics(SchedulerState *state, int n) {
     int count = (n > 0) ? n : state->num_processes;
     for (int i = 0; i < count; i++) {
         Process *p = state->processes[i];
+=======
+// Fill in per-process metrics (turnaround, waiting, response) based on times
+// computed during the schedule run.
+void calculate_metrics(SchedulerState *state) {
+    for (int i = 0; i < state->num_processes; i++) {
+        Process *p = &state->processes[i];
+>>>>>>> 38d9a33979a24933dc539f0a5362cdb326f4282b
         
         // Turnaround time = Finish time - Arrival time
         p->turnaround_time =  p->finish_time - p->arrival_time;
@@ -19,6 +27,7 @@ void calculate_metrics(SchedulerState *state, int n) {
     }
 }
 
+// Helper to compute average turnaround time across all processes.
 double calculate_average_turnaround(SchedulerState *state) {
     double sum = 0.0;
     for (int i = 0; i < state->num_processes; i++) {
@@ -27,6 +36,7 @@ double calculate_average_turnaround(SchedulerState *state) {
     return sum / state->num_processes;
 }
 
+// Print a table of per-process metrics (turnaround, waiting, response) and averages.
 void print_metrics(SchedulerState *state) {
     int total_tt = 0, total_wt = 0, total_rt = 0;
     printf("\n\n=== Metrics ===\n");

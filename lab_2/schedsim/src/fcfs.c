@@ -1,66 +1,89 @@
+/*
+ * fcfs.c
+ *
+ * First-Come First-Served scheduler.
+ * Runs each process in arrival order without preemption.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "./../include/process.h"
+#include <string.h>
 #include "./../include/scheduler.h"
 #include "./../include/queue.h"
+#include "./../include/queue_utils.h"
+#include "./../include/utils.h"
 
 
+<<<<<<< HEAD
 int schedule_fcfs(SchedulerState *state){
     Queue queue = {0};                                      // the queue itself for this algorithm 
     Process_queued processes[state->num_processes];         // to initialize all the process, it will be used for queueing the process logic
     int complete_counter = 0;
     int processes_unqueued = state->num_processes;
+=======
+// Run FCFS on the given scheduler state.
+// - state: holds the list of processes and where to store the Gantt chart
+// Returns 0 (unused return value, main ignores it).
+int schedule_fcfs(SchedulerState *state){
 
-    initialize_process_for_queue(state, processes);
+    Queue queue = {0};                                          // the queue itself for this algorithm 
+    Processes_pointer processes[state->num_processes];          // to initialize all the process, it will be used for queueing the process logic
+
+    Process *current_process = NULL;
+    GanttEntry ganttentry = {0};
+
+    int complete_counter = 0;
+    int unqueued_counter = state->num_processes;
+
+    initialize_processes_pointer(state, processes);
+>>>>>>> 38d9a33979a24933dc539f0a5362cdb326f4282b
+
     while(complete_counter < state->num_processes){
 
-        for(int i = 0; i < processes_unqueued; i++){
-            if(processes[i].processes->arrival_time <= state->current_time){
-                // processes[i].is_queued = true;
+        //will check every second/time_step if new process arrives
+        check_arrivals(state->current_time, processes, &unqueued_counter, &queue);
 
-                Process_queued holder = processes[i];
-                processes[i--] = processes[--processes_unqueued];
+        //if there's not current process running, will try to check if there are a process in the queue
+        if(current_process == NULL){
 
-                enqueue(&queue, holder.processes);
+            //if the queue is empty, simply simulate that the time is moving forward (increment the current time)
+            if(queue.size == 0){
+                state->current_time++;
+                continue;
+            }   
+
+            current_process = dequeue(&queue);
+
+            //setting the gantt properties and the start_time of the process 
+            //      (if start time has a place value holder ~meaning it doesnt run yet)
+            if(current_process->start_time == -1){
+                strcpy(ganttentry.name, current_process->pid);
+                ganttentry.start = state->current_time;
+                current_process->start_time = state->current_time;
             }
         }
 
-        if(queue.size == 0){
-            state->current_time++;
-            continue;
+        //simulate the process running and the time moving forward
+        current_process->remaining_time--;
+        state->current_time++;
+
+        //the process is done
+        if(current_process->remaining_time == 0){
+            current_process->finish_time = state->current_time;
+
+            //needed for the gantt chart later
+            ganttentry.end = state->current_time;
+            state->gantt[state->gantt_size++] = ganttentry;
+            ganttentry = (GanttEntry){0};
+
+            current_process = NULL;
+            complete_counter++;
         }
-
-        Process *p = dequeue(&queue);
-
-        // if(queue.head_process->processes->arrival_time <= current_time){
-        p->start_time = state->current_time;
-        state->current_time += p->burst_time;
-        p->finish_time = state->current_time;
-
-        complete_counter++;
-        
     }
 
     return 0;
 }
 
-// int schedule_fcfs(SchedulerState *state){
-//     int completed = 0;
-//     while(completed < state->num_processes){
-
-//         for(int i = 0; i < state->num_processes; i++){
-//             Process *p = &state->processes[i];
-//             if(p->arrival_time <= state->current_time && p->remaining_time > 0){
-//                 p->start_time = state->current_time;
-//                 state->current_time += p->burst_time;
-//                 p->finish_time = state->current_time;
-//                 p->remaining_time = 0;
-
-//                 completed++;
-//             }
-//         }
-//     }
-// }
 
 
 
