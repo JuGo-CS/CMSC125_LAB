@@ -19,38 +19,68 @@ void destruct_rr_element(RRQueueElement* el) {
 
 void rr_enqueue(AbstractProcessQueue* self, Process* process) {
     RRProcessQueue* rq = (RRProcessQueue*) self;
-
     RRQueueElement* node = construct_rr_element(process);
-    if (rq->tail == NULL) {
-        rq->head = rq->tail = node;
+
+    if (rq->pending_tail == NULL) {
+        rq->pending_head = rq->pending_tail = node;
     } else {
-        rq->tail->next = node;
-        rq->tail = node;
+        rq->pending_tail->next = node;
+        rq->pending_tail = node;
     }
 
     self->size++;
 }
 
-// Reinsert preempted running process at queue tail
+// Reinsert preempted running process into the round buffer
 void rr_requeue(RRProcessQueue* rq, Process* process) {
     RRQueueElement* node = construct_rr_element(process);
-    if (rq->tail == NULL) {
-        rq->head = rq->tail = node;
+
+    if (rq->round_tail == NULL) {
+        rq->round_head = rq->round_tail = node;
     } else {
-        rq->tail->next = node;
-        rq->tail = node;
+        rq->round_tail->next = node;
+        rq->round_tail = node;
     }
+
     rq->queue.size++;
+}
+
+static void rr_append_pending_to_active(RRProcessQueue* rq) {
+    if (rq->pending_head == NULL) return;
+
+    if (rq->active_tail == NULL) {
+        rq->active_head = rq->pending_head;
+        rq->active_tail = rq->pending_tail;
+    } else {
+        rq->active_tail->next = rq->pending_head;
+        rq->active_tail = rq->pending_tail;
+    }
+
+    rq->pending_head = rq->pending_tail = NULL;
 }
 
 Process* rr_dequeue(AbstractProcessQueue* self) {
     RRProcessQueue* rq = (RRProcessQueue*) self;
-    if (rq->head == NULL) return NULL;
 
-    RRQueueElement* temp = rq->head;
+    // If no active entries, finish current round and start a new one
+    if (rq->active_head == NULL) {
+        // Move prepared round entries into active
+        rq->active_head = rq->round_head;
+        rq->active_tail = rq->round_tail;
+        rq->round_head = rq->round_tail = NULL;
+
+        // Add pending arrivals after round entries
+        rr_append_pending_to_active(rq);
+    }
+
+    if (rq->active_head == NULL) {
+        return NULL;
+    }
+
+    RRQueueElement* temp = rq->active_head;
     Process* process = temp->process;
-    rq->head = rq->head->next;
-    if (rq->head == NULL) rq->tail = NULL;
+    rq->active_head = rq->active_head->next;
+    if (rq->active_head == NULL) rq->active_tail = NULL;
 
     destruct_rr_element(temp);
     self->size--;
@@ -59,9 +89,21 @@ Process* rr_dequeue(AbstractProcessQueue* self) {
 
 void destruct_rr_process_queue(AbstractProcessQueue* self) {
     RRProcessQueue* rq = (RRProcessQueue*) self;
-    while (rq->head != NULL) {
-        RRQueueElement* temp = rq->head;
-        rq->head = rq->head->next;
+    RRQueueElement* temp;
+
+    while (rq->active_head != NULL) {
+        temp = rq->active_head;
+        rq->active_head = rq->active_head->next;
+        destruct_rr_element(temp);
+    }
+    while (rq->round_head != NULL) {
+        temp = rq->round_head;
+        rq->round_head = rq->round_head->next;
+        destruct_rr_element(temp);
+    }
+    while (rq->pending_head != NULL) {
+        temp = rq->pending_head;
+        rq->pending_head = rq->pending_head->next;
         destruct_rr_element(temp);
     }
     free(rq);
@@ -74,7 +116,9 @@ RRProcessQueue* construct_rr_process_queue() {
     rq->queue.destruct_queue = destruct_rr_process_queue;
     rq->queue.size = 0;
 
-    rq->head = rq->tail = NULL;
+    rq->active_head = rq->active_tail = NULL;
+    rq->round_head = rq->round_tail = NULL;
+    rq->pending_head = rq->pending_tail = NULL;
 
     return rq;
 }

@@ -10,8 +10,12 @@ typedef struct RRQueueElement {
 
 typedef struct {
     AbstractProcessQueue queue;
-    RRQueueElement* head;
-    RRQueueElement* tail;
+    RRQueueElement* active_head;
+    RRQueueElement* active_tail;
+    RRQueueElement* round_head;
+    RRQueueElement* round_tail;
+    RRQueueElement* pending_head;
+    RRQueueElement* pending_tail;
 } RRProcessQueue;
 
 RRProcessQueue* construct_rr_process_queue();
