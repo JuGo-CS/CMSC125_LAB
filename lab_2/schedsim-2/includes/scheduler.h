@@ -3,9 +3,12 @@
 
 #include "./objects/process.h" 
 #include "./data-structures/process-queue-adt.h"
+#include "gantt.h"
 
 // Scheduler State
 #define MAX_PROCESSES 256
+
+
 typedef struct {
     Process* processes[MAX_PROCESSES];   // Array of all processes
     Process* running;                    // Running process
@@ -13,11 +16,15 @@ typedef struct {
     int num_processes;                   // Number of processes
     int current_time;                    // Current simulation time
     int quantum_time;                    // Time quantum for RR
+
+    GanttEntry gantt[MAX_GANTT_ENTRIES];   
+    int gantt_size;
 } SchedulerState;
 
 void get_processes_from_file(SchedulerState*, char*);
 void get_processes_from_string(SchedulerState*, char*);
 void free_scheduler(SchedulerState*);
+void print_gantt(SchedulerState*);
 
 // Scheduling algorithms
 // Return 0 on success, -1 on error (command line etiquette)

@@ -3,7 +3,7 @@
 #include "./../includes/scheduler.h"
 
 int schedule_stcf(SchedulerState *state){
-
+    
     return 0;
 }
 

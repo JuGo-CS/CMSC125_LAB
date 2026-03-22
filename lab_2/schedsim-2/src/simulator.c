@@ -1,10 +1,12 @@
 #include <stdio.h>
+#include <string.h>
 #include "../includes/simulator.h"
 #include "../includes/objects/event.h"
 #include "../includes/data-structures/event-queue.h"
 #include "../includes/data-structures/rr-process-queue.h"
 #include "../includes/simulator.h"
 #include "../includes/metrics.h"
+
 
 EventQueue* event_queue;
 void *scheduler;
@@ -13,6 +15,19 @@ void initialize_events(SchedulerState*);
 void handle_arrival(SchedulerState*, Process*);
 void handle_completion(SchedulerState*, Process*);
 void handle_quantum_expire(SchedulerState*, Process*);
+
+static void append_gantt_entry(SchedulerState* state, Process* process, int start_time, int run_time) {
+    if (run_time <= 0 || state->gantt_size >= MAX_GANTT_ENTRIES || !process) {
+        return;
+    }
+
+    GanttEntry entry = {0};
+    strncpy(entry.name, process->pid, sizeof(entry.name) - 1);
+    entry.start = start_time;
+    entry.end = start_time + run_time;
+
+    state->gantt[state->gantt_size++] = entry;
+}
 
 void simulate_scheduler(SchedulerState* state, int (*scheduling_algorithm)(SchedulerState*)) {
     event_queue = construct_event_queue();
@@ -39,6 +54,8 @@ void simulate_scheduler(SchedulerState* state, int (*scheduling_algorithm)(Sched
     destruct_event_queue(event_queue);
     calculate_metrics(state, state->num_processes);
     print_metrics(state);
+    print_gantt(state);
+
 }
 
 void initialize_events(SchedulerState* state) {
@@ -57,6 +74,9 @@ void handle_arrival(SchedulerState* state, Process* process) {
         state->running = process;
         int (*algo)(SchedulerState*) = (int (*)(SchedulerState*))scheduler;
         int run_time = algo(state);
+
+        // Collect gantt entry for this execution segment
+        append_gantt_entry(state, state->running, state->current_time, run_time);
 
         // Update remaining time
         state->running->remaining_time -= run_time;
@@ -82,6 +102,8 @@ void handle_completion(SchedulerState* state, Process* process) {
         state->running = state->waiting->dequeue(state->waiting);
         int (*algo)(SchedulerState*) = (int (*)(SchedulerState*))scheduler;
         int run_time = algo(state);
+
+        append_gantt_entry(state, state->running, state->current_time, run_time);
         
         // Update remaining time
         state->running->remaining_time -= run_time;
@@ -105,24 +127,26 @@ void handle_quantum_expire(SchedulerState* state, Process* process) {
         RRProcessQueue* rrq = (RRProcessQueue*) state->waiting;
         rr_requeue(rrq, state->running);
     }
-    
-    // Schedule next process
+
+    // Schedule next process (if any)
     if (state->waiting->size > 0) {
         state->running = state->waiting->dequeue(state->waiting);
         int (*algo)(SchedulerState*) = (int (*)(SchedulerState*))scheduler;
         int run_time = algo(state);
-        
+
+        append_gantt_entry(state, state->running, state->current_time, run_time);
+
         // Update remaining time
         state->running->remaining_time -= run_time;
         
         // Determine if this was a completion or quantum expiration
-        EventType event_type = (state->running->remaining_time == 0) ? 
+        EventType event_type = (state->running->remaining_time == 0) ?
                               EVENT_COMPLETION : EVENT_QUANTUM_EXPIRE;
-        
+
         enqueue_event(event_queue, construct_event(
             state->current_time + run_time,
             event_type,
-            state->running, 
+            state->running,
             NULL
         ));
     } else {
