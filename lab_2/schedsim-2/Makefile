@@ -18,32 +18,35 @@ clean:
 	rm -f $(TARGET)
 
 # Run Tests 
-test-1_input-1: $(TARGET)
+fcfs_input-1: $(TARGET)
 	./$(TARGET) --algorithm=fcfs --input=workload-1.txt
 
-test-2_input-1: $(TARGET)
-	./$(TARGET) --algorithm=sjf --input=workload-1.txt
-
-test-3_input-1: $(TARGET)
-	./$(TARGET) --algorithm=rr --quantum=5 --input=workload-1.txt
-
-test-1_input-2: $(TARGET)
+fcfs_input-2: $(TARGET)
 	./$(TARGET) --algorithm=fcfs --input=workload-2.txt
 
-test-2_input-2: $(TARGET)
-	./$(TARGET) --algorithm=sjf --input=workload-2.txt
-
-test-3_input-2: $(TARGET)
-	./$(TARGET) --algorithm=rr --quantum=5 --input=workload-2.txt
-
-
-test-1_input-3: $(TARGET)
+fcfs_input-3: $(TARGET)
 	./$(TARGET) --algorithm=fcfs --input=workload-3.txt
 
-test-2_input-3: $(TARGET)
+
+
+sjf_input-1: $(TARGET)
+	./$(TARGET) --algorithm=sjf --input=workload-1.txt
+
+sjf_input-2: $(TARGET)
+	./$(TARGET) --algorithm=sjf --input=workload-2.txt
+
+sjf_input-3: $(TARGET)
 	./$(TARGET) --algorithm=sjf --input=workload-3.txt
 
-test-3_input-3: $(TARGET)
+
+
+rr_input-1: $(TARGET)
+	./$(TARGET) --algorithm=rr --quantum=5 --input=workload-1.txt
+
+rr_input-2: $(TARGET)
+	./$(TARGET) --algorithm=rr --quantum=5 --input=workload-2.txt
+
+rr_input-3: $(TARGET)
 	./$(TARGET) --algorithm=rr --quantum=30 --input=workload-3.txt
 
 
