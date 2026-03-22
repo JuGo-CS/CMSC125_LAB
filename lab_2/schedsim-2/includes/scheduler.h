@@ -12,6 +12,7 @@ typedef struct {
     AbstractProcessQueue* waiting;       // Waiting processes 
     int num_processes;                   // Number of processes
     int current_time;                    // Current simulation time
+    int quantum_time;                    // Time quantum for RR
 } SchedulerState;
 
 void get_processes_from_file(SchedulerState*, char*);
@@ -23,7 +24,7 @@ void free_scheduler(SchedulerState*);
 int schedule_fcfs(SchedulerState *state);
 int schedule_sjf(SchedulerState *state);
 int schedule_stcf(SchedulerState *state);
-int schedule_rr(SchedulerState *state, int quantum);
+int schedule_rr(SchedulerState *state);
 // int schedule_mlfq(SchedulerState *state, MLFQConfig *config);
 
 #endif

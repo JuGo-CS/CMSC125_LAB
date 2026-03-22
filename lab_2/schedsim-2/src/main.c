@@ -6,6 +6,7 @@
 #include "./../includes/simulator.h"
 #include "./../includes/data-structures/fcfs-process-queue.h"
 #include "./../includes/data-structures/sjf-process-queue.h"
+#include "./../includes/data-structures/rr-process-queue.h"
 
 int main(int argc, char *argv[]) {
     CommandLineArguments* args = parse_command_line(argc, argv);   
@@ -34,6 +35,12 @@ int main(int argc, char *argv[]) {
             algorithm = schedule_stcf;
         }
         else if(strcasecmp(args->algorithm, "rr") == 0) {
+            if (args->quantum_time <= 0) {
+                fprintf(stderr, "Error: Quantum time must be positive for Round Robin scheduling.\n");
+                exit(1);
+            }
+            state.quantum_time = args->quantum_time;
+            state.waiting = (AbstractProcessQueue*) construct_rr_process_queue();
             algorithm = schedule_rr;
         } else {
             fprintf(stderr, "Invalid Algorithm!\n");
@@ -44,7 +51,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    simulate_scheduler(&state, algorithm); 
+    simulate_scheduler(&state, algorithm);
     free_scheduler(&state);
     free(args);
 
