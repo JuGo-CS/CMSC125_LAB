@@ -4,8 +4,9 @@
 #include "./../objects/event.h"
 
 typedef struct {
-    Event *head;    
+    Event *head;
     int size;
+    // int capacity;
 } EventQueue;
 
 EventQueue* construct_event_queue();
