@@ -11,6 +11,11 @@ void enqueue_event(EventQueue* q, Event* event) {
         Event* prev = NULL;
 
         while (curr != NULL && event->time >= curr->time) {
+
+            if((event->time < curr->time) || (event->time == curr->time && event->type == EVENT_ARRIVAL)){
+                break;
+            }
+
             prev = curr;
             curr = curr->next;
         }
@@ -45,6 +50,35 @@ void destruct_event_queue(EventQueue* q) {
         free(dequeue_event(q));
     }
     free(q);
+}
+
+Event* peek_next_arrival(EventQueue* q) {
+    Event* curr = q->head;
+    while (curr != NULL) {
+        if (curr->type == EVENT_ARRIVAL) return curr;
+        curr = curr->next;
+    }
+    return NULL;  // no pending arrivals
+}
+
+void remove_event_for_process(EventQueue* q, Process* process) {
+    Event* curr = q->head;
+    Event* prev = NULL;
+
+    while (curr != NULL) {
+        if (curr->process == process) {
+            if (prev == NULL) {
+                q->head = curr->next;
+            } else {
+                prev->next = curr->next;
+            }
+            q->size--;
+            destruct_event(curr);
+            return;
+        }
+        prev = curr;
+        curr = curr->next;
+    }
 }
 
 

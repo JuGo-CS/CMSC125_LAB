@@ -7,6 +7,7 @@
 #include "./../includes/data-structures/fcfs-process-queue.h"
 #include "./../includes/data-structures/sjf-process-queue.h"
 #include "./../includes/data-structures/rr-process-queue.h"
+#include "./../includes/data-structures/stcf-process-queue.h"
 
 int main(int argc, char *argv[]) {
     CommandLineArguments* args = parse_command_line(argc, argv);   
@@ -32,6 +33,7 @@ int main(int argc, char *argv[]) {
             algorithm = schedule_sjf;
         }
         else if(strcasecmp(args->algorithm, "stcf") == 0) {
+            state.waiting = (AbstractProcessQueue*) construct_stcf_process_queue(); // add this
             algorithm = schedule_stcf;
         }
         else if(strcasecmp(args->algorithm, "rr") == 0) {

@@ -50,5 +50,13 @@ rr_input-3: $(TARGET)
 	./$(TARGET) --algorithm=rr --quantum=30 --input=workload-3.txt
 
 
+stcf_input-3: $(TARGET)
+	./$(TARGET) --algorithm=stcf --input=workload-3.txt
+
+stcf_input-2: $(TARGET)
+	./$(TARGET) --algorithm=stcf --quantum=5 --input=workload-2.txt
+
+stcf_input-3: $(TARGET)
+	./$(TARGET) --algorithm=stcf --quantum=30 --input=workload-3.txt
 	
 
