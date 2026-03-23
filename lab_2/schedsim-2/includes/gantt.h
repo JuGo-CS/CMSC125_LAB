@@ -9,7 +9,7 @@ typedef struct SchedulerState SchedulerState;
 // How many time units correspond to one character in the chart.
 // Mas malaki value, mas short ang gantt chart
 // Mas maliit value, mas mahaba gantt
-#define GANTT_SCALE 30
+#define GANTT_SCALE 5
 #define MAX_GANTT_ENTRIES 1024
 
 

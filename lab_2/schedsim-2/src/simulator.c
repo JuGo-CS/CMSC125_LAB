@@ -43,8 +43,8 @@ void simulate_scheduler(SchedulerState* state, int (*scheduling_algorithm)(Sched
     }
     destruct_event_queue(event_queue);
     calculate_metrics(state, state->num_processes);
-    print_metrics(state);
     print_gantt(state);
+    print_metrics(state);
 
 }
 
