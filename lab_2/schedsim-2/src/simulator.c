@@ -81,7 +81,34 @@ void handle_arrival(SchedulerState* state, Process* process) {
             process, 
             NULL
         ));
-    } else {
+    } 
+    
+    else if (scheduler == schedule_stcf && process->remaining_time < state->running->remaining_time) {
+        
+        //Cancel the running process's scheduled event
+        remove_event_for_process(event_queue, state->running);
+        state->waiting->enqueue(state->waiting, state->running);
+
+        state->running = process;
+        int (*algo)(SchedulerState*) = (int (*)(SchedulerState*))scheduler;
+        int run_time = algo(state);
+
+        append_gantt_entry(state, state->running, state->current_time, run_time);
+        state->running->remaining_time -= run_time;
+
+        EventType event_type = (state->running->remaining_time == 0) ?
+                               EVENT_COMPLETION : EVENT_QUANTUM_EXPIRE;
+
+        enqueue_event(event_queue, construct_event(
+            state->current_time + run_time,
+            event_type,
+            state->running,
+            NULL
+        ));
+
+    }
+    
+    else {
         state->waiting->enqueue(state->waiting, process);
     }
 }
@@ -114,8 +141,12 @@ void handle_completion(SchedulerState* state, Process* process) {
 void handle_quantum_expire(SchedulerState* state, Process* process) {
     // Preempted process should stay in the active RR rotation (batch semantics)
     if (state->running) {
-        RRProcessQueue* rrq = (RRProcessQueue*) state->waiting;
-        rr_requeue(rrq, state->running);
+        if(scheduler == schedule_rr) {
+            RRProcessQueue* rrq = (RRProcessQueue*) state->waiting;
+            rr_requeue(rrq, state->running);
+        } else {
+            state->waiting->enqueue(state->waiting, state->running);
+        }
     }
 
     // Schedule next process (if any)
@@ -143,3 +174,4 @@ void handle_quantum_expire(SchedulerState* state, Process* process) {
         state->running = NULL;
     }
 }
+
