@@ -6,6 +6,7 @@
 #include "../includes/data-structures/rr-process-queue.h"
 #include "../includes/simulator.h"
 #include "../includes/metrics.h"
+#include "../includes/gantt.h"
 
 
 EventQueue* event_queue;
@@ -16,18 +17,7 @@ void handle_arrival(SchedulerState*, Process*);
 void handle_completion(SchedulerState*, Process*);
 void handle_quantum_expire(SchedulerState*, Process*);
 
-static void append_gantt_entry(SchedulerState* state, Process* process, int start_time, int run_time) {
-    if (run_time <= 0 || state->gantt_size >= MAX_GANTT_ENTRIES || !process) {
-        return;
-    }
 
-    GanttEntry entry = {0};
-    strncpy(entry.name, process->pid, sizeof(entry.name) - 1);
-    entry.start = start_time;
-    entry.end = start_time + run_time;
-
-    state->gantt[state->gantt_size++] = entry;
-}
 
 void simulate_scheduler(SchedulerState* state, int (*scheduling_algorithm)(SchedulerState*)) {
     event_queue = construct_event_queue();

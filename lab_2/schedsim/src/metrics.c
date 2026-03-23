@@ -3,18 +3,11 @@ a#include <stdio.h>
 #include "./../include/process.h"
 #include "./../include/scheduler.h"
 
-<<<<<<< HEAD
-void calculate_metrics(SchedulerState *state, int n) {
-    int count = (n > 0) ? n : state->num_processes;
-    for (int i = 0; i < count; i++) {
-        Process *p = state->processes[i];
-=======
 // Fill in per-process metrics (turnaround, waiting, response) based on times
 // computed during the schedule run.
 void calculate_metrics(SchedulerState *state) {
     for (int i = 0; i < state->num_processes; i++) {
         Process *p = &state->processes[i];
->>>>>>> 38d9a33979a24933dc539f0a5362cdb326f4282b
         
         // Turnaround time = Finish time - Arrival time
         p->turnaround_time =  p->finish_time - p->arrival_time;

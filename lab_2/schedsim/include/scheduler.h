@@ -13,11 +13,9 @@
 
 // Scheduler State
 typedef struct {
-<<<<<<< HEAD
     Process* processes[MAX_PROCESSES];   // Array of all processes
     int num_processes;                   // Number of processes
     int current_time;                    // Current simulation time
-=======
     Process processes[MAX_PROCESSES]; // Array of all processes
     int num_processes;      // Number of processes
     int current_time;       // Current simulation time
@@ -26,7 +24,6 @@ typedef struct {
 
     GanttEntry gantt[10000];   // or define a MAX_GANTT_ENTRIES
     int gantt_size;
->>>>>>> 38d9a33979a24933dc539f0a5362cdb326f4282b
 } SchedulerState;
 void get_processes_from_file(SchedulerState*, char*);
 void get_processes_from_string(SchedulerState*, char*);

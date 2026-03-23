@@ -9,7 +9,7 @@
 #define MAX_PROCESSES 256
 
 
-typedef struct {
+typedef struct SchedulerState {
     Process* processes[MAX_PROCESSES];   // Array of all processes
     Process* running;                    // Running process
     AbstractProcessQueue* waiting;       // Waiting processes 
@@ -24,7 +24,7 @@ typedef struct {
 void get_processes_from_file(SchedulerState*, char*);
 void get_processes_from_string(SchedulerState*, char*);
 void free_scheduler(SchedulerState*);
-void print_gantt(SchedulerState*);
+
 
 // Scheduling algorithms
 // Return 0 on success, -1 on error (command line etiquette)
