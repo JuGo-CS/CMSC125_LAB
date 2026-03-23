@@ -1,0 +1,30 @@
+# Multi-Level Feedback Queue (MLFQ) Configuration
+# Format: Queue configuration and boost specification
+# 
+# Each queue is defined as: Q<id> <time_quantum> <allotment>
+#   - time_quantum: milliseconds per time slice (-1 for FCFS, no limit)
+#   - allotment: max time in queue before demotion (-1 for no demotion)
+#
+# BOOST_PERIOD: How often (in time units) to reset all processes to highest priority
+#   - Prevents starvation of long-running jobs
+#   - Set to -1 to disable boosts
+
+# Queue 0: High priority (interactive processes)
+# - Short time quantum (responsive)
+# - Small allotment (quick to demote if they need more CPU)
+Q0 10 50
+
+# Queue 1: Medium priority (mixed workloads)
+# - Longer time quantum than Q0 (balanced)
+# - Medium allotment
+Q1 30 150
+
+# Queue 2: Low priority (batch/CPU-intensive processes)
+# - No time limit (FCFS at lowest level)
+# - Unlimited allotment
+Q2 -1 -1
+
+# Priority boost mechanism
+# When time reaches BOOST_PERIOD, all processes return to Q0
+# This prevents starvation of long-running jobs
+BOOST_PERIOD 200

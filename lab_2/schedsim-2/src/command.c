@@ -16,7 +16,7 @@ CommandLineArguments* parse_command_line(int argc, char *argv[]) {
     memset(args, 0, sizeof(CommandLineArguments));
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "a:p:i:q:", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "a:p:i:q:m:", long_options, NULL)) != -1) {
         switch (opt) {
             case 'a':
                 args->algorithm = optarg;
@@ -34,6 +34,10 @@ CommandLineArguments* parse_command_line(int argc, char *argv[]) {
                 char *endptr;
                 long val = strtol(optarg, &endptr, 10);
                 args->quantum_time = (int)val;
+                break;
+            
+            case 'm':
+                args->mlfq_config_file = optarg;
                 break;
             
             default:

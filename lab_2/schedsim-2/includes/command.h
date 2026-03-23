@@ -8,6 +8,7 @@ typedef struct {
     char* process_str;
     char* input_file;
     int quantum_time;
+    char* mlfq_config_file;
 } CommandLineArguments;
 
 static struct option long_options[] = {
@@ -15,6 +16,7 @@ static struct option long_options[] = {
     {"processes", required_argument, 0, 'p'},
     {"input", required_argument, 0, 'i'},
     {"quantum", required_argument, 0, 'q'},
+    {"mlfq-config", required_argument, 0, 'm'},
     {0}
 };
 
