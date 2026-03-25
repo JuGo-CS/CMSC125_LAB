@@ -1,8 +1,6 @@
-# Multi-Level Feedback Queue (MLFQ) Scheduler - Complete Design Documentation
+# Multi-Level Feedback Queue (MLFQ) Scheduler
 
-**Group Members:** Christian Jave S. Hulleza, Kenneth G. Mondejar  
-**Course:** CMSC 125 - Operating Systems  
-**Lab:** CPU Scheduler Simulation (schedsim-2)
+
 
 ---
 
@@ -878,7 +876,7 @@ The implementation proves that adaptive scheduling is both practical and effecti
 
 ---
 
-**Document Version**: 1.0  
+**Document Version**: 1.1  
 **Last Updated**: March 2026  
 **Group**: Christian Jave S. Hulleza, Kenneth G. Mondejar  
 **Course**: CMSC 125 Operating Systems

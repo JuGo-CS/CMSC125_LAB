@@ -1,8 +1,5 @@
-# CPU Scheduler Simulator (schedsim-2)
+# CPU Scheduler Simulator
 
-## Group Members
-- **Christian Jave S. Hulleza**
-- **Kenneth G. Mondejar**
 
 ## Project Overview
 
@@ -411,15 +408,12 @@ ls -lh schedsim
 7. **Visualization**: Interactive Gantt chart viewer
 8. **Workload Generation**: Synthetic workload creator with distributions
 
-## References
-
-- **MLFQ Design**: Based on "Operating Systems: Three Easy Pieces" by Remzi Arpaci-Dusseau
-- **Discrete Event Simulation**: Standard DES pattern for process-based simulation
-- **Scheduler Algorithms**: Classic scheduling theory (CPU scheduling)
-
 ---
+
+## Group Members
+- **Christian Jave S. Hulleza**
+- **Kenneth G. Mondejar**
 
 **Lab**: CMSC 125 - Operating Systems  
 **Course**: 3rd Year, 2nd Semester  
-**University**: [Technology Institute]  
 **Last Updated**: March 2026
