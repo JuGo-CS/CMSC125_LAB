@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
 
     // Normal mode: run single algorithm
     void *algorithm = NULL;
+    MLFQConfig* mlfq_config = NULL;
 
     if(args->algorithm) {
         if(strcasecmp(args->algorithm, "fcfs") == 0) {
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]) {
                 exit(1);
             }
             
-            MLFQConfig* mlfq_config = load_mlfq_config(args->mlfq_config_file);
+            mlfq_config = load_mlfq_config(args->mlfq_config_file);
             if (!mlfq_config) {
                 fprintf(stderr, "Error: Failed to load MLFQ configuration\n");
                 exit(1);
@@ -84,6 +85,9 @@ int main(int argc, char *argv[]) {
 
     simulate_scheduler(&state, algorithm);
     free_scheduler(&state);
+    if (mlfq_config) {
+        free_mlfq_config(mlfq_config);
+    }
     free(args);
 
     return 0;
