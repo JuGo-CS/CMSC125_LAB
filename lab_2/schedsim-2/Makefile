@@ -50,7 +50,7 @@ rr_input-3: $(TARGET)
 	./$(TARGET) --algorithm=rr --quantum=30 --input=workload-3.txt
 
 
-stcf_input-3: $(TARGET)
+stcf_input-1: $(TARGET)
 	./$(TARGET) --algorithm=stcf --input=workload-3.txt
 
 stcf_input-2: $(TARGET)
@@ -58,5 +58,16 @@ stcf_input-2: $(TARGET)
 
 stcf_input-3: $(TARGET)
 	./$(TARGET) --algorithm=stcf --quantum=30 --input=workload-3.txt
+
+
+# MLFQ Tests
+mlfq_input-1: $(TARGET)
+	./$(TARGET) --algorithm=mlfq --mlfq-config=mlfq_config.txt --input=workload-1.txt
+
+mlfq_input-2: $(TARGET)
+	./$(TARGET) --algorithm=mlfq --mlfq-config=mlfq_config.txt --input=workload-2.txt
+
+mlfq_input-3: $(TARGET)
+	./$(TARGET) --algorithm=mlfq --mlfq-config=mlfq_config.txt --input=workload-3.txt
 	
 
