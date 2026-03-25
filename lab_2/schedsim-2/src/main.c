@@ -4,6 +4,7 @@
 #include "./../includes/command.h"
 #include "./../includes/scheduler.h"
 #include "./../includes/simulator.h"
+#include "./../includes/compare.h"
 #include "./../includes/data-structures/fcfs-process-queue.h"
 #include "./../includes/data-structures/sjf-process-queue.h"
 #include "./../includes/data-structures/rr-process-queue.h"
@@ -14,7 +15,6 @@
 int main(int argc, char *argv[]) {
     CommandLineArguments* args = parse_command_line(argc, argv);   
     SchedulerState state = {0};
-    void *algorithm = NULL;
 
     if (args->input_file) {
         get_processes_from_file(&state, args->input_file);
@@ -23,7 +23,18 @@ int main(int argc, char *argv[]) {
     } else {
         fprintf(stderr, "No input provided!\n");
         return 1;
-    } 
+    }
+    
+    // If comparison mode is requested, run all algorithms and exit
+    if (args->compare_mode) {
+        run_comparison(state, args->input_file ? args->input_file : "inline");
+        free_scheduler(&state);
+        free(args);
+        return 0;
+    }
+
+    // Normal mode: run single algorithm
+    void *algorithm = NULL;
 
     if(args->algorithm) {
         if(strcasecmp(args->algorithm, "fcfs") == 0) {
@@ -35,7 +46,7 @@ int main(int argc, char *argv[]) {
             algorithm = schedule_sjf;
         }
         else if(strcasecmp(args->algorithm, "stcf") == 0) {
-            state.waiting = (AbstractProcessQueue*) construct_stcf_process_queue(); // add this
+            state.waiting = (AbstractProcessQueue*) construct_stcf_process_queue();
             algorithm = schedule_stcf;
         }
         else if(strcasecmp(args->algorithm, "rr") == 0) {
