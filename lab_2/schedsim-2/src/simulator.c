@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../includes/simulator.h"
 #include "../includes/objects/event.h"
 #include "../includes/data-structures/event-queue.h"
@@ -13,6 +14,7 @@
 EventQueue* event_queue;
 void *scheduler;
 int is_mlfq_scheduler = 0;
+bool sort_by_burst_time = false;
 
 void initialize_events(SchedulerState*);
 void handle_arrival(SchedulerState*, Process*);
@@ -25,6 +27,7 @@ void handle_priority_boost(SchedulerState*);
 void simulate_scheduler(SchedulerState* state, int (*scheduling_algorithm)(SchedulerState*)) {
     event_queue = construct_event_queue();
     scheduler = scheduling_algorithm;
+    sort_by_burst_time = (scheduling_algorithm == schedule_sjf || scheduling_algorithm == schedule_stcf) ? 1 : 0;
     is_mlfq_scheduler = (scheduling_algorithm == schedule_mlfq) ? 1 : 0;
     initialize_events(state);
 
@@ -70,7 +73,7 @@ void initialize_events(SchedulerState* state) {
             EVENT_ARRIVAL,
             state->processes[i], 
             NULL
-        ));
+        ), sort_by_burst_time);
     }
     
     // For MLFQ, schedule priority boost events
@@ -96,7 +99,7 @@ void initialize_events(SchedulerState* state) {
                     EVENT_PRIORITY_BOOST,
                     NULL,
                     NULL
-                ));
+                ), false);
                 boost_time += mq->config->boost_period;
             }
         }
@@ -124,7 +127,7 @@ void handle_arrival(SchedulerState* state, Process* process) {
             event_type,
             process, 
             NULL
-        ));
+        ), sort_by_burst_time);
     } 
     
     else if (scheduler == schedule_stcf && process->remaining_time < state->running->remaining_time) {
@@ -148,7 +151,7 @@ void handle_arrival(SchedulerState* state, Process* process) {
             event_type,
             state->running,
             NULL
-        ));
+        ), sort_by_burst_time);
 
     }
     
@@ -186,7 +189,7 @@ void handle_completion(SchedulerState* state, Process* process) {
             event_type,
             state->running, 
             NULL
-        ));
+        ), sort_by_burst_time);
     }
 }
 
@@ -237,7 +240,7 @@ void handle_quantum_expire(SchedulerState* state, Process* process) {
             event_type,
             state->running,
             NULL
-        ));
+        ), sort_by_burst_time);
     } else {
         state->running = NULL;
     }
@@ -295,7 +298,7 @@ void handle_priority_boost(SchedulerState* state) {
             event_type,
             state->running,
             NULL
-        ));
+        ), 0);
     } else {
         state->running = NULL;
     }

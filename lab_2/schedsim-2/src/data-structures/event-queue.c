@@ -1,23 +1,33 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "./../../includes/data-structures/event-queue.h"
 #include "./../../includes/objects/event.h"
 
-void enqueue_event(EventQueue* q, Event* event) {
+void enqueue_event(EventQueue* q, Event* event, bool arrange_by_remaining_time) {
     if (q->head == NULL) {
         q->head = event;     
     } else {
         Event* curr = q->head;
         Event* prev = NULL;
 
-        while (curr != NULL && event->time >= curr->time) {
 
-            if((event->time < curr->time) || (event->time == curr->time && event->type == EVENT_ARRIVAL)){
-                break;
+        if (arrange_by_remaining_time) {
+            while (curr != NULL && event->time >= curr->time) {
+                if (event->time == curr->time) {
+                    // If times are equal, sort by remaining burst time
+                    if (event->process->remaining_time < curr->process->remaining_time) {
+                        break;
+                    }
+                }
+                prev = curr;
+                curr = curr->next;
             }
-
-            prev = curr;
-            curr = curr->next;
+        } else {
+            while (curr != NULL && event->time >= curr->time) {
+                prev = curr;
+                curr = curr->next;
+            }
         }
         
         event->next = curr;
