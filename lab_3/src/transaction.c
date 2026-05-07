@@ -18,12 +18,16 @@ void* execute_transaction(void* arg) {
         
         switch (op->type) {
             case OP_DEPOSIT:
+                if (verbose_mode) printf("[Tick %d] T%d: DEPOSIT %d centavos into Acc %d\n", 
+                                         global_tick, tx->tx_id, op->amount_centavos, op->account_id);
                 load_account(&shared_pool, op->account_id);
                 deposit(op->account_id, op->amount_centavos);
                 unload_account(&shared_pool, op->account_id);
                 break;
                 
             case OP_WITHDRAW:
+                if (verbose_mode) printf("[Tick %d] T%d: WITHDRAW %d centavos from Acc %d\n", 
+                                         global_tick, tx->tx_id, op->amount_centavos, op->account_id);
                 load_account(&shared_pool, op->account_id);
                 if (!withdraw(op->account_id, op->amount_centavos)) {
                     unload_account(&shared_pool, op->account_id);
@@ -34,6 +38,9 @@ void* execute_transaction(void* arg) {
                 break;
                 
             case OP_TRANSFER:
+                if (verbose_mode) printf("[Tick %d] T%d: TRANSFER %d from Acc %d to Acc %d\n", 
+                                         global_tick, tx->tx_id, op->amount_centavos, op->account_id, op->target_account);
+
                 // Buffer Pool Deadlock Prevention(consistent order)
                 int first = (op->account_id < op->target_account) ? op->account_id : op->target_account;
                 int second = (op->account_id < op->target_account) ? op->target_account : op->account_id;
@@ -55,7 +62,9 @@ void* execute_transaction(void* arg) {
             case OP_BALANCE: {
                 load_account(&shared_pool, op->account_id);
                 int balance = get_balance(op->account_id);
-                printf("T%d: Account %d balance = PHP %d.%02d\n", tx->tx_id, op->account_id, balance / 100, balance % 100);
+                if (verbose_mode) printf("[Tick %d] T%d: Account %d balance = PHP %d.%02d\n", 
+                       global_tick, tx->tx_id, op->account_id, balance / 100, balance % 100);
+                
                 unload_account(&shared_pool, op->account_id);
                 break;
             }

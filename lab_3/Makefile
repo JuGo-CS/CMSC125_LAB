@@ -13,6 +13,9 @@ all: $(TARGET)
 $(TARGET): $(SOURCES)
 	$(CC) $(CFLAGS) -o $@ $^
 
+parser: 
+	$(CC) $(CFLAGS) -o $(TARGET) $(SRCDIR)/parser.c
+
 # Run code
 run: $(TARGET)
 		./$(TARGET)

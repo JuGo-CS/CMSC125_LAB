@@ -2,8 +2,6 @@
 #include "bankdb.h"
 #include <stdio.h>
 
-Bank bank;
-
 void init_bank(int num_accounts) {
     bank.num_accounts = num_accounts;
     pthread_mutex_init(&bank.bank_lock, NULL);

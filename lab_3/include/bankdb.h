@@ -9,10 +9,7 @@
 #define TICK_INTERVAL_MS 10 // Used by timer
 #define BUFFER_POOL_SIZE 5
 #define MAX_TRANSACTIONS 100
-
-// Global configuration flags
-extern bool verbose_mode;
-extern bool deadlock_prevention;
+#define TRANSACTION_END -1
 
 typedef struct {
     int account_id;
@@ -25,8 +22,6 @@ typedef struct {
     int num_accounts;
     pthread_mutex_t bank_lock;
 } Bank;
-
-extern Bank bank; // Global bank instance
 
 typedef enum {
     OP_DEPOSIT,
@@ -61,5 +56,12 @@ typedef struct {
     
     TxStatus status;
 } Transaction;
+
+// Global configuration flags
+extern bool verbose_mode;
+extern bool deadlock_prevention;
+extern int tick_ms;
+extern Bank bank; // Global bank instance
+extern Transaction tsx[MAX_TRANSACTIONS] ; // Global transaction list instance
 
 #endif 
