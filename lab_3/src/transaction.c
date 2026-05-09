@@ -7,7 +7,8 @@
 
 void* execute_transaction(void* arg) {
     Transaction* tx = (Transaction*)arg;
-    
+    char* operation_string = "";
+
     wait_until_tick(tx->start_tick);
     tx->actual_start = global_tick;
     tx->status = TX_RUNNING;
@@ -18,17 +19,23 @@ void* execute_transaction(void* arg) {
         
         switch (op->type) {
             case OP_DEPOSIT:
-                if (verbose_mode) printf("[Tick %d] T%d: DEPOSIT %d centavos into Acc %d\n", 
+                if (verbose_mode) printf("[Tick %d] T%d started: DEPOSIT %d centavos into Acc %d\n", 
                                          global_tick, tx->tx_id, op->amount_centavos, op->account_id);
+                
+                operation_string = "DEPOSIT";
                 load_account(&shared_pool, op->account_id);
                 deposit(op->account_id, op->amount_centavos);
                 unload_account(&shared_pool, op->account_id);
+            
                 break;
                 
             case OP_WITHDRAW:
-                if (verbose_mode) printf("[Tick %d] T%d: WITHDRAW %d centavos from Acc %d\n", 
+                if (verbose_mode) printf("[Tick %d] T%d started: WITHDRAW %d centavos from Acc %d\n", 
                                          global_tick, tx->tx_id, op->amount_centavos, op->account_id);
+
+                operation_string = "WITHDRAW";
                 load_account(&shared_pool, op->account_id);
+                
                 if (!withdraw(op->account_id, op->amount_centavos)) {
                     unload_account(&shared_pool, op->account_id);
                     tx->status = TX_ABORTED;
@@ -38,9 +45,10 @@ void* execute_transaction(void* arg) {
                 break;
                 
             case OP_TRANSFER:
-                if (verbose_mode) printf("[Tick %d] T%d: TRANSFER %d from Acc %d to Acc %d\n", 
+                if (verbose_mode) printf("[Tick %d] T%d started: TRANSFER %d from Acc %d to Acc %d\n", 
                                          global_tick, tx->tx_id, op->amount_centavos, op->account_id, op->target_account);
 
+                operation_string = "TRANSFER";
                 // Buffer Pool Deadlock Prevention(consistent order)
                 int first = (op->account_id < op->target_account) ? op->account_id : op->target_account;
                 int second = (op->account_id < op->target_account) ? op->target_account : op->account_id;
@@ -65,14 +73,19 @@ void* execute_transaction(void* arg) {
                 if (verbose_mode) printf("[Tick %d] T%d: Account %d balance = PHP %d.%02d\n", 
                        global_tick, tx->tx_id, op->account_id, balance / 100, balance % 100);
                 
+                operation_string = "BALANCE";
+
                 unload_account(&shared_pool, op->account_id);
                 break;
             }
         }
         tx->wait_ticks += (global_tick - tick_before);
+        wait_until_tick(global_tick + 1);
     }
     
     tx->actual_end = global_tick;
     tx->status = TX_COMMITTED;
+    printf("T%d completed: %s successful.\n", 
+            tx->tx_id, operation_string);
     return NULL;
 }

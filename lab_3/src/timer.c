@@ -16,6 +16,7 @@ void init_timer() {
 void* timer_thread(void* arg) {
     (void)arg;
     while (simulation_running) {
+        printf("\nTick %d:\n", global_tick);
         usleep(TICK_INTERVAL_MS * 1000);  // Simulating time progression
         pthread_mutex_lock(&tick_lock);
         global_tick++;

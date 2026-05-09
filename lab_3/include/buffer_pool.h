@@ -17,6 +17,10 @@ typedef struct {
     sem_t empty_slots;
     sem_t full_slots;
     pthread_mutex_t pool_lock;
+    int total_loads;
+    int total_unloads;
+    int current_usage;
+    int peak_usage;
 } BufferPool;
 
 extern BufferPool shared_pool;

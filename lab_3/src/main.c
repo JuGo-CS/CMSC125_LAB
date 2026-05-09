@@ -5,6 +5,7 @@
 #include "parser.h"
 #include "transaction.h"
 #include "buffer_pool.h"
+#include "metrics.h" 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,10 +24,13 @@ int main(int argc, char* argv[]) {
     init_timer();
     init_buffer_pool(&shared_pool);
     parse_command_line(argc, argv);
-    print_system_state(bank, tsx);
+
+    printf("=== Banking System Execution Log ===\n");
+    printf("Timer thread started (tick interval: %d)\n", tick_ms);
+
 
     long long initial_total = calculate_total_balance();
-    printf("Initial total: PHP %lld.%02lld\n", initial_total / 100, initial_total % 100);
+    printf("Initial total: PHP %lld.%02lld\n\n", initial_total / 100, initial_total % 100);
 
     pthread_t timer_tid;
     pthread_create(&timer_tid, NULL, timer_thread, NULL);
@@ -41,8 +45,16 @@ int main(int argc, char* argv[]) {
 
     simulation_running = false;
     pthread_join(timer_tid, NULL);
+    
+    // print metrics
+    print_performance_metrics(tsx, global_tick);
+    print_summary(tsx, global_tick);
+    print_buffer_pool_report(&shared_pool);
 
+
+    // conversation check
     long long final_total = calculate_total_balance();
+    printf("\n=== Conversation Report ===\n");
     printf("Final total:   PHP %lld.%02lld\n", final_total / 100, final_total % 100);
     
     if (initial_total == final_total) {
@@ -50,6 +62,5 @@ int main(int argc, char* argv[]) {
     } else {
         printf("Conservation check: FAILED\n");
     }
-
     return 0;
 }

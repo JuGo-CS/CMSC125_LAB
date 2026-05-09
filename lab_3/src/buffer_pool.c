@@ -18,6 +18,12 @@ void load_account(BufferPool* pool, int account_id) {
     sem_wait(&pool->empty_slots);  // Block if pool is full
     pthread_mutex_lock(&pool->pool_lock);
     
+    pool->total_loads++;
+    pool->current_usage++;
+    if (pool->current_usage > pool->peak_usage) {
+        pool->peak_usage = pool->current_usage;
+    }
+
     for (int i = 0; i < BUFFER_POOL_SIZE; i++) {
         if (!pool->slots[i].in_use) {
             pool->slots[i].account_id = account_id;
@@ -35,6 +41,9 @@ void unload_account(BufferPool* pool, int account_id) {
     sem_wait(&pool->full_slots);   // Wait for a full slot to exist
     pthread_mutex_lock(&pool->pool_lock);
     
+    pool->total_unloads++;
+    pool->current_usage--;
+
     for (int i = 0; i < BUFFER_POOL_SIZE; i++) {
         if (pool->slots[i].in_use && pool->slots[i].account_id == account_id) {
             pool->slots[i].in_use = false;
