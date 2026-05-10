@@ -12,7 +12,7 @@
 
 long long calculate_total_balance() {
     long long total = 0;
-    for (int i = 0; i < bank.num_accounts; i++) {
+    for (int i = 0; i < MAX_ACCOUNTS; i++) {
         total += get_balance(i);
     }
     return total;

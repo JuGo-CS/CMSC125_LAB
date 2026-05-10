@@ -23,15 +23,18 @@ int load_accounts(Bank *bank, const char *filename) {
     int id;
     long bal;
    
-    while (fgets(line, sizeof(line), file) && bank->num_accounts < MAX_ACCOUNTS) {
+    while (fgets(line, sizeof(line), file)) {
         if (line[0] == '#' || line[0] == '\n') {
             continue;
         }
 
         if (sscanf(line, "%d %ld", &id, &bal) == 2) {
-            bank->accounts[bank->num_accounts].account_id = id;
-            bank->accounts[bank->num_accounts].balance_centavos = bal;
-            bank->num_accounts++;
+            if (id < 0 || id >= MAX_ACCOUNTS) {
+                fprintf(stderr, "Invalid account ID: %d\n", id);
+                continue;
+            }
+            bank->accounts[id].account_id = id;
+            bank->accounts[id].balance_centavos = bal;
         }
     }
 
@@ -50,7 +53,7 @@ void print_system_state(Bank bank, Transaction *tx_list) {
     printf("------------------------------------------\n");
     printf("%-12s | %-15s\n", "Account ID", "Balance");
     printf("------------------------------------------\n");
-    for (int i = 0; i < bank.num_accounts; i++) {
+    for (int i = 0; i < MAX_ACCOUNTS; i++) {
         // Converting centavos to a decimal-style display
         double dollars = bank.accounts[i].balance_centavos / 100.0;
         printf("ID: %-8d | $%-14.2f\n", 

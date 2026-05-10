@@ -39,6 +39,8 @@ void* execute_transaction(void* arg) {
                 if (!withdraw(op->account_id, op->amount_centavos)) {
                     unload_account(&shared_pool, op->account_id);
                     tx->status = TX_ABORTED;
+                    tx->actual_end = global_tick;
+                    if (verbose_mode) printf("[Tick %d] T%d aborted: insufficient funds for WITHDRAW\n", global_tick, tx->tx_id);
                     return NULL;
                 }
                 unload_account(&shared_pool, op->account_id);
@@ -49,9 +51,12 @@ void* execute_transaction(void* arg) {
                                          global_tick, tx->tx_id, op->amount_centavos, op->account_id, op->target_account);
 
                 operation_string = "TRANSFER";
-                // Buffer Pool Deadlock Prevention(consistent order)
-                int first = (op->account_id < op->target_account) ? op->account_id : op->target_account;
-                int second = (op->account_id < op->target_account) ? op->target_account : op->account_id;
+                int first = op->account_id;
+                int second = op->target_account;
+                if (deadlock_prevention) {
+                    first = (op->account_id < op->target_account) ? op->account_id : op->target_account;
+                    second = (op->account_id < op->target_account) ? op->target_account : op->account_id;
+                }
 
                 load_account(&shared_pool, first);
                 load_account(&shared_pool, second);
@@ -60,6 +65,14 @@ void* execute_transaction(void* arg) {
                     unload_account(&shared_pool, first);
                     unload_account(&shared_pool, second);
                     tx->status = TX_ABORTED;
+                    tx->actual_end = global_tick;
+                    if (verbose_mode) {
+                        if (deadlock_prevention) {
+                            printf("[Tick %d] T%d aborted: transfer failed from Acc %d to Acc %d\n", global_tick, tx->tx_id, op->account_id, op->target_account);
+                        } else {
+                            printf("[Tick %d] T%d aborted: deadlock detected while transferring from Acc %d to Acc %d\n", global_tick, tx->tx_id, op->account_id, op->target_account);
+                        }
+                    }
                     return NULL;
                 }
 

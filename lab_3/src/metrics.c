@@ -12,7 +12,12 @@ void print_performance_metrics(Transaction* tsx, int global_tick) {
     for (int i = 0; tsx[i].tx_id != TRANSACTION_END; i++) {
         total_tx++;
         total_wait += tsx[i].wait_ticks;
-        char* status_str = (tsx[i].status == TX_COMMITTED) ? "COMMITTED" : "ABORTED";
+        const char* status_str;
+        switch (tsx[i].status) {
+            case TX_COMMITTED: status_str = "COMMITTED"; break;
+            case TX_ABORTED:   status_str = "ABORTED";   break;
+            default:           status_str = "RUNNING";   break;
+        }
         
         printf("T%-3d | %-9d | %-11d | %-3d | %-9d | %s\n",
                tsx[i].tx_id, tsx[i].start_tick, tsx[i].actual_start,

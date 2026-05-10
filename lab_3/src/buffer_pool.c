@@ -8,6 +8,11 @@ void init_buffer_pool(BufferPool* pool) {
     sem_init(&pool->full_slots, 0, 0);
     pthread_mutex_init(&pool->pool_lock, NULL);
     
+    pool->total_loads = 0;
+    pool->total_unloads = 0;
+    pool->current_usage = 0;
+    pool->peak_usage = 0;
+    
     for (int i = 0; i < BUFFER_POOL_SIZE; i++) {
         pool->slots[i].in_use = false;
     }

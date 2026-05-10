@@ -1,6 +1,7 @@
 #include "bank.h"
 #include "bankdb.h"
 #include <stdio.h>
+#include <unistd.h>
 
 void init_bank(int num_accounts) {
     bank.num_accounts = num_accounts;
@@ -40,14 +41,31 @@ bool withdraw(int account_id, int amount_centavos) {
 }
 
 bool transfer(int from_id, int to_id, int amount_centavos, int tx_id) {
-    int first = (from_id < to_id) ? from_id : to_id;
-    int second = (from_id < to_id) ? to_id : from_id;
+    if (from_id == to_id) {
+        return true;
+    }
+
+    int first = from_id;
+    int second = to_id;
+    if (deadlock_prevention) {
+        first = (from_id < to_id) ? from_id : to_id;
+        second = (from_id < to_id) ? to_id : from_id;
+    }
 
     Account* acc_first = &bank.accounts[first];
     Account* acc_second = &bank.accounts[second];
     
     pthread_rwlock_wrlock(&acc_first->lock);
-    pthread_rwlock_wrlock(&acc_second->lock);
+    if (deadlock_prevention) {
+        pthread_rwlock_wrlock(&acc_second->lock);
+    } else {
+        // Delay to allow the other transaction to lock its first lock
+        usleep(1000);
+        if (pthread_rwlock_trywrlock(&acc_second->lock) != 0) {
+            pthread_rwlock_unlock(&acc_first->lock);
+            return false;
+        }
+    }
     
     Account* from_acc = &bank.accounts[from_id];
     if (from_acc->balance_centavos < amount_centavos) {

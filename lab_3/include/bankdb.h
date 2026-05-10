@@ -20,6 +20,8 @@ typedef struct {
 typedef struct {
     Account accounts[MAX_ACCOUNTS];
     int num_accounts;
+    int loaded_accounts[MAX_ACCOUNTS];
+    int num_loaded;
     pthread_mutex_t bank_lock;
 } Bank;
 
