@@ -11,7 +11,7 @@
 #include <string.h>
 
 long long calculate_total_balance() {
-    long long total = 0;
+    long long total = bank.reserve_balance_centavos;
     for (int i = 0; i < MAX_ACCOUNTS; i++) {
         total += get_balance(i);
     }
@@ -20,7 +20,7 @@ long long calculate_total_balance() {
 
 
 int main(int argc, char* argv[]) {
-       // init_bank(MAX_ACCOUNTS);
+    init_bank(MAX_ACCOUNTS);
     init_timer();
     init_buffer_pool(&shared_pool);
     parse_command_line(argc, argv);

@@ -22,6 +22,7 @@ typedef struct {
     int num_accounts;
     int loaded_accounts[MAX_ACCOUNTS];
     int num_loaded;
+    long long reserve_balance_centavos;
     pthread_mutex_t bank_lock;
 } Bank;
 

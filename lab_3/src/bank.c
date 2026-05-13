@@ -5,6 +5,7 @@
 
 void init_bank(int num_accounts) {
     bank.num_accounts = num_accounts;
+    bank.reserve_balance_centavos = 0;
     pthread_mutex_init(&bank.bank_lock, NULL);
     for (int i = 0; i < num_accounts; i++) {
         bank.accounts[i].account_id = i;
@@ -26,6 +27,10 @@ void deposit(int account_id, int amount_centavos) {
     pthread_rwlock_wrlock(&acc->lock);
     acc->balance_centavos += amount_centavos;
     pthread_rwlock_unlock(&acc->lock);
+
+    // To preserve total system money, withdrawals and deposits move money
+    // to/from the internal reserve balance instead of creating/destroying it.
+    bank.reserve_balance_centavos -= amount_centavos;
 }
 
 bool withdraw(int account_id, int amount_centavos) {
@@ -37,6 +42,8 @@ bool withdraw(int account_id, int amount_centavos) {
     }
     acc->balance_centavos -= amount_centavos;
     pthread_rwlock_unlock(&acc->lock);
+
+    bank.reserve_balance_centavos += amount_centavos;
     return true;
 }
 
