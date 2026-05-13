@@ -41,62 +41,6 @@ int load_accounts(Bank *bank, const char *filename) {
     fclose(file);
     return 0;
 }
-
-
-void print_system_state(Bank bank, Transaction *tx_list) {
-    printf("\n==========================================\n");
-    printf("   🏦 CURRENT BANK DATABASE STATE   \n");
-    printf("==========================================\n");
-
-    // 1. Print Accounts
-    printf("ACCOUNTS:\n");
-    printf("------------------------------------------\n");
-    printf("%-12s | %-15s\n", "Account ID", "Balance");
-    printf("------------------------------------------\n");
-    for (int i = 0; i < MAX_ACCOUNTS; i++) {
-        // Converting centavos to a decimal-style display
-        double dollars = bank.accounts[i].balance_centavos / 100.0;
-        printf("ID: %-8d | $%-14.2f\n", 
-               bank.accounts[i].account_id, dollars);
-    }
-
-    printf("\n==========================================\n");
-    printf("   📜 TRANSACTION WORKLOAD   \n");
-    printf("==========================================\n");
-
-    // 2. Print Transactions using the sentinel (-1)
-    printf("%-5s | %-5s | %-10s | %-15s\n", "ID", "Tick", "Type", "Details");
-    printf("------------------------------------------\n");
-    
-    for (int i = 0; i < MAX_TRANSACTIONS && tx_list[i].tx_id != TRANSACTION_END; i++) {
-        Transaction *tx = &tx_list[i];
-        Operation *op = &tx->ops[0]; // Assuming 1 op per tx for now
-
-        char *type_str;
-        switch(op->type) {
-            case OP_DEPOSIT:  type_str = "DEPOSIT";  break;
-            case OP_WITHDRAW: type_str = "WITHDRAW"; break;
-            case OP_TRANSFER: type_str = "TRANSFER"; break;
-            case OP_BALANCE:  type_str = "BALANCE";  break;
-            default:          type_str = "UNKNOWN";  break;
-        }
-
-        printf("T%-4d | %-5d | %-10s | ", i, tx->start_tick, type_str);
-
-        if (op->type == OP_TRANSFER) {
-            printf("Acc %d -> %d ($%.2f)\n", 
-                   op->account_id, op->target_account, op->amount_centavos / 100.0);
-        } else if (op->type == OP_BALANCE) {
-            printf("Acc %d\n", op->account_id);
-        } else {
-            printf("Acc %d ($%.2f)\n", 
-                   op->account_id, op->amount_centavos / 100.0);
-        }
-    }
-    printf("==========================================\n\n");
-}
-
-
 OpType get_op_type(char *op_str) {
     if (strcmp(op_str, "DEPOSIT") == 0)  return OP_DEPOSIT;
     if (strcmp(op_str, "WITHDRAW") == 0) return OP_WITHDRAW;

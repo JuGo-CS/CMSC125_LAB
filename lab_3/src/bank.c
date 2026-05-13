@@ -52,15 +52,8 @@ bool transfer(int from_id, int to_id, int amount_centavos, int tx_id) {
         return true;
     }
 
-    int first = from_id;
-    int second = to_id;
-    if (deadlock_prevention) {
-        first = (from_id < to_id) ? from_id : to_id;
-        second = (from_id < to_id) ? to_id : from_id;
-    }
-
-    Account* acc_first = &bank.accounts[first];
-    Account* acc_second = &bank.accounts[second];
+    Account* acc_first = &bank.accounts[from_id];
+    Account* acc_second = &bank.accounts[to_id];
     
     pthread_rwlock_wrlock(&acc_first->lock);
     if (deadlock_prevention) {
