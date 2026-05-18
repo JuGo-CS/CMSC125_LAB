@@ -46,7 +46,6 @@ void print_summary(Transaction* tsx, int global_tick) {
     printf("Committed: %d\n", committed);
     printf("Aborted: %d\n", aborted);
     printf("Total ticks: %d\n", global_tick);
-    printf("ThreadSanitizer warnings: 0\n");
 }
 
 void print_buffer_pool_report(BufferPool* pool) {
