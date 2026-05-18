@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
-
+#include <errno.h>
+#include <limits.h>
 #include "parser.h"
 #include "bankdb.h"
 
 bool verbose_mode;
 bool deadlock_prevention;
-int tick_ms;
+long tick_ms;
 Bank bank; // Global bank instance
 Transaction tsx[MAX_TRANSACTIONS] ; // Global transaction list instance
 
@@ -123,7 +124,23 @@ void parse_command_line(int argc, char *argv[]) {
                 if (strcmp(optarg, "prevention") == 0) deadlock_prevention = true;
                 else if (strcmp(optarg, "detection") == 0) deadlock_prevention = false;
                 break;
-            case 'm': tick_ms = atoi(optarg); break;
+            case 'm': {
+                errno = 0; // Reset errno before conversion
+                char *endptr = '\0'; // Ensure endptr is null-terminated
+                tick_ms = strtol(optarg, &endptr, 10);
+
+                if ( endptr == optarg || *endptr != '\0') {
+                    fprintf(stderr, "Invalid --tick duration: %s\n", optarg);
+                    exit(EXIT_FAILURE);
+                }
+
+                if ( (errno == ERANGE && (tick_ms == LONG_MAX || tick_ms < 0)) || (tick_ms <= 0) ) {
+                    fprintf(stderr, "Invalid --tick duration (Out of long type range OR negative): %s\n", optarg);
+                    exit(EXIT_FAILURE);
+                }
+
+                break;
+            }
             case 'v': verbose_mode = true;    break;
             default:
                 exit(EXIT_FAILURE);

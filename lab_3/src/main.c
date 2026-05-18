@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     parse_command_line(argc, argv);
 
     printf("=== Banking System Execution Log ===\n");
-    printf("Timer thread started (tick interval: %d)\n", tick_ms);
+    printf("Timer thread started (tick interval: %ld)\n", tick_ms);
 
 
     long long initial_total = calculate_total_balance();

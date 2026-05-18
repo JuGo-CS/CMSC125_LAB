@@ -63,7 +63,7 @@ typedef struct {
 // Global configuration flags
 extern bool verbose_mode;
 extern bool deadlock_prevention;
-extern int tick_ms;
+extern long tick_ms;
 extern Bank bank; // Global bank instance
 extern Transaction tsx[MAX_TRANSACTIONS] ; // Global transaction list instance
 
