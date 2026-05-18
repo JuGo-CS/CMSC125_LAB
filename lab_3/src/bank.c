@@ -58,29 +58,59 @@ bool transfer(int from_id, int to_id, int amount_centavos, int tx_id) {
         return true;
     }
 
-    // Acquire locks in ascending order of account ID to prevent lock-order-inversion.
-    // This ensures all transactions follow the same global lock order, breaking
-    // the circular-wait condition of deadlock.
-    int first_id = (from_id < to_id) ? from_id : to_id;
-    int second_id = (from_id < to_id) ? to_id : from_id;
+    Account* acc_from = &bank.accounts[from_id];
+    Account* acc_to = &bank.accounts[to_id];
     
-    Account* acc_first = &bank.accounts[first_id];
-    Account* acc_second = &bank.accounts[second_id];
-    
-    pthread_rwlock_wrlock(&acc_first->lock);
-    pthread_rwlock_wrlock(&acc_second->lock);
-    
-    Account* from_acc = &bank.accounts[from_id];
-    if (from_acc->balance_centavos < amount_centavos) {
+    if (deadlock_prevention) {
+        // PREVENTION: Acquire locks in ascending order of account ID to prevent
+        // lock-order-inversion. This ensures all transactions follow the same
+        // global lock order, breaking the circular-wait condition of deadlock.
+        int first_id = (from_id < to_id) ? from_id : to_id;
+        int second_id = (from_id < to_id) ? to_id : from_id;
+        
+        Account* acc_first = &bank.accounts[first_id];
+        Account* acc_second = &bank.accounts[second_id];
+        
+        pthread_rwlock_wrlock(&acc_first->lock);
+        pthread_rwlock_wrlock(&acc_second->lock);
+        
+        if (acc_from->balance_centavos < amount_centavos) {
+            pthread_rwlock_unlock(&acc_second->lock);
+            pthread_rwlock_unlock(&acc_first->lock);
+            return false;
+        }
+        
+        bank.accounts[from_id].balance_centavos -= amount_centavos;
+        bank.accounts[to_id].balance_centavos += amount_centavos;
+        
         pthread_rwlock_unlock(&acc_second->lock);
         pthread_rwlock_unlock(&acc_first->lock);
-        return false;
+        return true;
+        
+    } else {
+        // DETECTION: Try-lock with timeout heuristic. If second lock acquisition
+        // fails (thread is already waiting), abort this transaction to break potential deadlock.
+        pthread_rwlock_wrlock(&acc_from->lock);
+        
+        // Delay to allow the other transaction to lock its first lock
+        usleep(1000);
+        if (pthread_rwlock_trywrlock(&acc_to->lock) != 0) {
+            // Failed to acquire second lock - possible deadlock detected
+            pthread_rwlock_unlock(&acc_from->lock);
+            return false;
+        }
+        
+        if (acc_from->balance_centavos < amount_centavos) {
+            pthread_rwlock_unlock(&acc_to->lock);
+            pthread_rwlock_unlock(&acc_from->lock);
+            return false;
+        }
+        
+        bank.accounts[from_id].balance_centavos -= amount_centavos;
+        bank.accounts[to_id].balance_centavos += amount_centavos;
+        
+        pthread_rwlock_unlock(&acc_to->lock);
+        pthread_rwlock_unlock(&acc_from->lock);
+        return true;
     }
-    
-    bank.accounts[from_id].balance_centavos -= amount_centavos;
-    bank.accounts[to_id].balance_centavos += amount_centavos;
-    
-    pthread_rwlock_unlock(&acc_second->lock);
-    pthread_rwlock_unlock(&acc_first->lock);
-    return true;
 }
