@@ -5,10 +5,11 @@
 #include "parser.h"
 #include "transaction.h"
 #include "buffer_pool.h"
-#include "metrics.h" 
+#include "metrics.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdatomic.h>
 
 long long calculate_total_balance() {
     long long total = bank.reserve_balance_centavos;
@@ -43,7 +44,8 @@ int main(int argc, char* argv[]) {
         pthread_join(tsx[i].thread, NULL);
     }
 
-    simulation_running = false;
+    // Use atomic_store to safely write to simulation_running
+    atomic_store(&simulation_running, false);
     pthread_join(timer_tid, NULL);
     
     // print metrics

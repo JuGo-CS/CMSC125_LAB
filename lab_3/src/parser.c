@@ -97,6 +97,9 @@ void parse_command_line(int argc, char *argv[]) {
     // Initialize to NULL so we can check if they were actually set
     char *account_file = NULL;
     char *trace_file = NULL;
+    
+    // Initialize tick_ms with default value
+    tick_ms = TICK_INTERVAL_MS;
 
     int c;
     while (1) {

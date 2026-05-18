@@ -2,9 +2,10 @@
 #include "bankdb.h"
 #include <unistd.h>
 #include <stdio.h>
+#include <stdatomic.h>
 
 volatile int global_tick = 0;
-bool simulation_running = true;
+_Atomic bool simulation_running = true;
 pthread_mutex_t tick_lock;
 pthread_cond_t tick_changed;
 
@@ -15,11 +16,14 @@ void init_timer() {
 
 void* timer_thread(void* arg) {
     (void)arg;
-    while (simulation_running) {
-        printf("\nTick %d:\n", global_tick);
-        usleep(TICK_INTERVAL_MS * 1000);  // Simulating time progression
+    while (atomic_load(&simulation_running)) {
+        // Sleep for tick interval (use tick_ms instead of hardcoded TICK_INTERVAL_MS)
+        usleep(tick_ms * 1000);
+        
         pthread_mutex_lock(&tick_lock);
         global_tick++;
+        // Print tick inside the lock to prevent data race on global_tick
+        printf("\nTick %d:\n", global_tick);
         pthread_cond_broadcast(&tick_changed);
         pthread_mutex_unlock(&tick_lock);
     }
