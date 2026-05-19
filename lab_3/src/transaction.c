@@ -74,7 +74,7 @@ void* execute_transaction(void* arg) {
                 load_account(&shared_pool, first);
                 load_account(&shared_pool, second);
 
-                if (!transfer(op->account_id, op->target_account, op->amount_centavos, tx->tx_id)) {
+                if (!transfer(op->account_id, op->target_account, op->amount_centavos)) {
                     unload_account(&shared_pool, first);
                     unload_account(&shared_pool, second);
                     tx->status = TX_ABORTED;

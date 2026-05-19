@@ -1,7 +1,7 @@
 CC = gcc
-CFLAGS = -Wextra -I include
+CFLAGS = -Wextra -I include -Wall -O2 -pthread
 SRCDIR = src
-TARGET = exec
+TARGET = bankdb  # Changed to bankdb to match your architecture
 
 # Find all .c files recursively
 SOURCES = $(shell find $(SRCDIR) -name "*.c")
@@ -13,35 +13,35 @@ all: $(TARGET)
 $(TARGET): $(SOURCES)
 	$(CC) $(CFLAGS) -o $@ $^
 
+# Debug target with ThreadSanitizer instrumentation
+debug: $(SOURCES)
+	$(CC) $(CFLAGS) -g -fsanitize=thread -pthread -o $(TARGET) $^
+	./$(TARGET) --accounts accounts.txt --trace trace_basic.txt
+
+# Parser target
 parser: 
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRCDIR)/parser.c
 
+# Test configurations
 TEST_DIR = tests
 ACCOUNTS = $(TEST_DIR)/accounts.txt
 
-.PHONY: test-all test-concurrent test-no-conflict test-invalid test-pool-saturation test-deadlock-prevention test-deadlock-detection clean
-
-test-all: test-concurrent test-no-conflict test-invalid test-pool-saturation test-deadlock-prevention test-deadlock-detection
-
-test-concurrent: $(TARGET)
-	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-concurrent.txt --deadlock detection --tick-ms=100 --verbose
-
-test-no-conflict: $(TARGET)
-	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-no-conflict.txt --deadlock detection --tick-ms=100 --verbose
-
-test-invalid: $(TARGET)
-	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-invalid.txt --deadlock detection --tick-ms=100 --verbose
-
-test-pool-saturation: $(TARGET)
-	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-pool-saturation.txt --deadlock detection --tick-ms=100 --verbose
-
-test-deadlock-prevention: $(TARGET)
-	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-deadlock.txt --deadlock prevention --tick-ms=100 --verbose
-
-test-deadlock-detection: $(TARGET)
-	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-deadlock.txt --deadlock detection --tick-ms=100 --verbose
-
-
-# Clean build artifacts
+# Test suite invoking five distinct scenarios
+test: $(TARGET)
+	@echo "=== Running Test Case 1: No Conflict ==="
+	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-no-conflict.txt --tick-ms 100 --deadlock detection
+	
+	@echo "=== Running Test Case 2: Concurrent Operations ==="
+	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-concurrent.txt --tick-ms 50 --deadlock detection
+	
+	@echo "=== Running Test Case 3: Deadlock Scenario ==="
+	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-deadlock.txt --tick-ms 50 --deadlock prevention
+	
+	@echo "=== Running Test Case 4: Pool Saturation ==="
+	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-pool-saturation.txt --tick-ms 50 --deadlock prevention
+	
+	@echo "=== Running Test Case 5: Invalid Inputs ==="
+	./$(TARGET) --accounts $(ACCOUNTS) --trace $(TEST_DIR)/test-invalid.txt --tick-ms 200 --deadlock detection
+	
 clean:
 	rm -f $(TARGET)

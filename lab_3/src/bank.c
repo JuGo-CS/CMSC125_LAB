@@ -53,7 +53,7 @@ bool withdraw(int account_id, int amount_centavos) {
     return true;
 }
 
-bool transfer(int from_id, int to_id, int amount_centavos, int tx_id) {
+bool transfer(int from_id, int to_id, int amount_centavos) {
     if (from_id == to_id) {
         return true;
     }
