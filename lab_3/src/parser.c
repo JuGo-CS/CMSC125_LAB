@@ -38,7 +38,7 @@ int load_accounts(Bank *bank, const char *filename) {
             bank->accounts[id].balance_centavos = bal;
         }
     }
-
+    
     fclose(file);
     return 0;
 }
