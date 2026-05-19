@@ -8,10 +8,9 @@ void init_bank(int num_accounts) {
     bank.reserve_balance_centavos = 0;
     pthread_mutex_init(&bank.bank_lock, NULL);
     for (int i = 0; i < num_accounts; i++) {
-        bank.accounts[i].account_id = i;
-        bank.accounts[i].balance_centavos = 0;
         pthread_rwlock_init(&bank.accounts[i].lock, NULL);
     }
+    printf("%lld\n", bank.reserve_balance_centavos);
 }
 
 int get_balance(int account_id) {
