@@ -67,25 +67,37 @@ int load_transactions(Transaction *tx_list, const char *filename) {
         int tick, acc_id;
 
         if (sscanf(line, "%s %d %s %d", tx_label, &tick, op_str, &acc_id) == 4) {
-            Transaction *tx = &tx_list[tx_count];
-            
-            tx->tx_id = atoi(&tx_label[1]);
-            tx->start_tick = tick;
-            tx->status = TX_RUNNING;
-            tx->num_ops = 1; 
+            // find index with a tx_label or create new transaction if not found
+            int tx_index = -1;
+            for (int i = 0; i < MAX_TRANSACTIONS; i++) {
+                if (tsx[i].tx_id == atoi(tx_label + 1)) {
+                    tx_index = i;
+                    break;
+                }
+            }
+            if (tx_index == -1 && tx_count < MAX_TRANSACTIONS - 1) { 
+                tx_index = ++tx_count;
+                tsx[tx_index].tx_id = atoi(tx_label + 1);
+                tsx[tx_index].start_tick = tick;
+                tsx[tx_index].status = TX_RUNNING;
+            }
 
-            Operation *op = &tx->ops[0];
+            // add operation to transaction's operation list
+            Operation *op = &tsx[tx_index].ops[tsx[tx_index].num_ops];
             op->type = get_op_type(op_str);
             op->account_id = acc_id;
-
             if (op->type == OP_TRANSFER) {
                 sscanf(line, "%*s %*d %*s %*d %d %d", 
                        &op->target_account, &op->amount_centavos);
             } else if (op->type != OP_BALANCE) {
                 sscanf(line, "%*s %*d %*s %*d %d", &op->amount_centavos);
+            } else if (op->type == OP_BALANCE) {
+                op->amount_centavos = 0; 
+            } else {
+                fprintf(stderr, "Error: Invalid operation type in line: %s\n", line);
+                continue;
             }
-
-            tx_count++;
+            tsx[tx_index].num_ops++;
         }
     }
 

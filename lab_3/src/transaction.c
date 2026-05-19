@@ -11,7 +11,7 @@ void* execute_transaction(void* arg) {
 
     wait_until_tick(tx->start_tick);
     
-    // Read global_tick under lock to prevent data race
+    // Read global_tick under locksto prevent data race
     pthread_mutex_lock(&tick_lock);
     tx->actual_start = global_tick;
     pthread_mutex_unlock(&tick_lock);
