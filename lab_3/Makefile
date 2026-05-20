@@ -4,7 +4,6 @@ DBFLAGS = -Wall -Wextra -g -fsanitize=thread -pthread -I include
 
 SRCDIR = src
 TARGET = bankdb 
-DBTAR   = bankdb_debug
 
 # Find all .c files recursively
 SOURCES = $(shell find $(SRCDIR) -name "*.c")
@@ -24,12 +23,9 @@ $(TARGET): $(SOURCES)
 	$(CC) $(CFLAGS) -o $@ $^
 
 # Debug target with ThreadSanitizer instrumentation
-debug: $(DBTAR)
-
-$(DBTAR): $(SOURCES)
-	$(CC) $(DBFLAGS) -o $@ $^
+debug: $(SOURCES)
+	$(CC) $(DBFLAGS) -o $(TARGET) $^
 	
-
 # Parser target
 parser: 
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRCDIR)/parser.c
