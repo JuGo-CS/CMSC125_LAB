@@ -43,8 +43,9 @@ As dictated by the course module, our implementation fully realizes a concurrent
 
 ## Known Limitations
 
-While our concurrent engine achieves complete data consistency and passes standard runtime test cycles with zero ThreadSanitizer warnings, it operates within the following constraints:
+Our concurrent engine achieves data conservation and passes standard runtime test cycles. It operates within the following constraints:
 
+* **Single Deadlock Strategy — Prevention Only:** The system implements deadlock prevention exclusively via strict global lock ordering (ascending account ID). The `--deadlock detection` flag is accepted for CLI compatibility but always applies the prevention strategy. No wait-for-graph cycle detector is implemented.
 * **Localized Page Directories & Cache Load Overhead:** The Buffer Pool Manager handles per-thread page requests independently instead of validating access against an atomic, global mapping registry. While this architecture guarantees strict data isolation during reading cycles, it can introduce concurrent cache misses and redundant load executions when multiple threads target identical account scopes simultaneously.
 * **Absence of Fine-Grained Upgrades or Lock Downgrading:** The operational layer lacks support for advanced Multi-Version Concurrency Control (MVCC) or active transaction lock downgrading. Consequently, write actions execute over coarse, exclusive states, which can reduce maximal system throughput under dense write workloads (`DEPOSIT`/`WITHDRAW`) due to thread stalling.
 * **Volatile In-Memory Storage Emulation:** The disk persistence subsystem is simulated within a volatile operational block. The system does not implement a Write-Ahead Logging (WAL) protocol, meaning transaction durability and absolute point-in-time recovery cannot be guaranteed if an unhandled process termination or hardware fault simulation occurs.
