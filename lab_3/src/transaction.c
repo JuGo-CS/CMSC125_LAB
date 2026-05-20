@@ -64,12 +64,8 @@ void* execute_transaction(void* arg) {
                                          current_op_tick, tx->tx_id, op->amount_centavos, op->account_id, op->target_account);
 
                 operation_string = "TRANSFER";
-                int first = op->account_id;
-                int second = op->target_account;
-                if (deadlock_prevention) {
-                    first = (op->account_id < op->target_account) ? op->account_id : op->target_account;
-                    second = (op->account_id < op->target_account) ? op->target_account : op->account_id;
-                }
+                int first = (op->account_id < op->target_account) ?  op->account_id : op->target_account;
+                int second = (op->account_id < op->target_account) ? op->target_account : op->account_id;
 
                 load_account(&shared_pool, first);
                 load_account(&shared_pool, second);
@@ -82,13 +78,9 @@ void* execute_transaction(void* arg) {
                     pthread_mutex_lock(&tick_lock);
                     tx->actual_end = global_tick;
                     pthread_mutex_unlock(&tick_lock);
-                    if (verbose_mode) {
-                        if (deadlock_prevention) {
-                            printf("[Tick %d] T%d aborted: transfer failed from Acc %d to Acc %d\n", current_op_tick, tx->tx_id, op->account_id, op->target_account);
-                        } else {
-                            printf("[Tick %d] T%d aborted: deadlock detected while transferring from Acc %d to Acc %d\n", current_op_tick, tx->tx_id, op->account_id, op->target_account);
-                        }
-                    }
+                    if (verbose_mode)
+                            printf("[Tick %d] T%d aborted: insufficient funds for TRANSFER from Acc %d to Acc %d\n",
+                                   current_op_tick, tx->tx_id, op->account_id, op->target_account);
                     return NULL;
                 }
 

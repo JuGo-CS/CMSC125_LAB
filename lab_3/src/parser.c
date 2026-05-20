@@ -133,8 +133,12 @@ void parse_command_line(int argc, char *argv[]) {
             case 'a': account_file = optarg; break;
             case 't': trace_file = optarg;   break;
             case 'd':
-                if (strcmp(optarg, "prevention") == 0) deadlock_prevention = true;
-                else if (strcmp(optarg, "detection") == 0) deadlock_prevention = false;
+                if (strcmp(optarg, "prevention") == 0) {
+                    deadlock_prevention = true;
+                } else {
+                    fprintf(stderr, "Warning: only 'prevention' strategy is supported. Ignoring '%s'.\n", optarg);
+                    deadlock_prevention = true;
+                }
                 break;
             case 'm': {
                 errno = 0; // Reset errno before conversion

@@ -53,9 +53,9 @@ int main(int argc, char* argv[]) {
     print_buffer_pool_report(&shared_pool);
 
 
-    // conversation check
+    // Conservation check
     long long final_total = calculate_total_balance();
-    printf("\n=== Conversation Report ===\n");
+    printf("\n=== Conservation Report ===\n");
     printf("Final total:   PHP %lld.%02lld\n", final_total / 100, final_total % 100);
     
     if (initial_total == final_total) {
