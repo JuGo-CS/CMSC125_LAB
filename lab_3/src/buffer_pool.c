@@ -5,7 +5,6 @@ BufferPool shared_pool;
 
 void init_buffer_pool(BufferPool* pool) {
     sem_init(&pool->empty_slots, 0, BUFFER_POOL_SIZE);
-    sem_init(&pool->full_slots, 0, 0);
     pthread_mutex_init(&pool->pool_lock, NULL);
     
     pool->total_loads = 0;
@@ -39,11 +38,9 @@ void load_account(BufferPool* pool, int account_id) {
     }
     
     pthread_mutex_unlock(&pool->pool_lock);
-    sem_post(&pool->full_slots);   // Signal that a slot is full
 }
 
 void unload_account(BufferPool* pool, int account_id) {
-    sem_wait(&pool->full_slots);   // Wait for a full slot to exist
     pthread_mutex_lock(&pool->pool_lock);
     
     pool->total_unloads++;

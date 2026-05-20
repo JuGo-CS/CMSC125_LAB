@@ -35,7 +35,6 @@ void* execute_transaction(void* arg) {
                 operation_string = "DEPOSIT";
                 load_account(&shared_pool, op->account_id);
                 deposit(op->account_id, op->amount_centavos);
-                unload_account(&shared_pool, op->account_id);
             
                 break;
                 
@@ -56,7 +55,7 @@ void* execute_transaction(void* arg) {
                     if (verbose_mode) printf("[Tick %d] T%d aborted: insufficient funds for WITHDRAW\n", current_op_tick, tx->tx_id);
                     return NULL;
                 }
-                unload_account(&shared_pool, op->account_id);
+                
                 break;
                 
             case OP_TRANSFER:
@@ -84,8 +83,6 @@ void* execute_transaction(void* arg) {
                     return NULL;
                 }
 
-                unload_account(&shared_pool, second);
-                unload_account(&shared_pool, first);
                 break;
                 
             case OP_BALANCE: {
@@ -96,7 +93,6 @@ void* execute_transaction(void* arg) {
                 
                 operation_string = "BALANCE";
 
-                unload_account(&shared_pool, op->account_id);
                 break;
             }
         }
@@ -109,6 +105,21 @@ void* execute_transaction(void* arg) {
         
         tx->wait_ticks += (current_tick - tick_before);
         wait_until_tick(next_tick);
+
+        switch (op->type) {
+            case OP_DEPOSIT:
+            case OP_WITHDRAW:
+            case OP_BALANCE:
+                unload_account(&shared_pool, op->account_id);
+                break;
+            case OP_TRANSFER: {
+                int first = (op->account_id < op->target_account) ? op->account_id : op->target_account;
+                int second = (op->account_id < op->target_account) ? op->target_account : op->account_id;
+                unload_account(&shared_pool, second);
+                unload_account(&shared_pool, first);
+                break;
+            }
+        }
     }
     
     // Read final tick under lock before setting actual_end
